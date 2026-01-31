@@ -8,10 +8,10 @@
   },
   {
     "id": 2,
-    "title": "Blast Box",
-    "description": "A real‑time multiplayer shooting game inspired by diep.io.",
-    "tech": ["uWebSockets", "p5.js", "Azure"],
-    "link":  "https://github.com/siddarth2810/blast-box"
+    "title": "NAASH",
+    "description": "AI-powered terminal shell that improves speed and efficiency through natural language interaction",
+    "tech": ["TypeScript", "Bash"],
+    "link":  "https://github.com/siddarth2810/Not-Another-AI-shell"
   },
   {
     "id":3,
@@ -21,7 +21,14 @@
     "link":  "https://github.com/siddarth2810/http-server"
   },
   {
-    "id": 4,
+    "id":4,
+    "title": "Blast Box",
+    "description": "A real‑time multiplayer shooting game inspired by diep.io.",
+    "tech": ["uWebSockets", "p5.js", "Azure"],
+    "link":  "https://github.com/siddarth2810/blast-box"
+  },
+  {
+    "id": 5,
     "title": "Compiler",
     "description": "Built a small compiler to understand more about Compiler theory",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
