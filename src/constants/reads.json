@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "title": "Fixing bugs in the Linux kernel with Syzbot, Qemu and GDB",
+    "link":  "https://hackerbikepacker.com/syzbot"
+  },
+  {
+    "id": 2,
+    "title": "Tips for getting started with OpenSource",
+    "link":  "https://www.gouthamve.dev/tips-for-getting-started-with-opensource/"
+  },
+  {
+    "id":3,
+    "title": "Static analysis by Dan Carpenter",
+    "link":  "https://staticthinking.wordpress.com/"
+  },
+  {
+    "id": 4,
+    "title": "Introduction to Message Brokers",
+    "link":  "https://dev.to/siddarth2810/introduction-to-message-brokers-kafka-essentials-3ddk"
+  },
+  {
+    "id": 5,
+    "title": "Navigating Your First Tech Conference",
+    "link":  "https://siddarth.hashnode.dev/navigating-your-first-tech-conference"
+  }
+]
+

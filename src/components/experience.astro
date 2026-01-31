@@ -25,7 +25,7 @@ const experiences = [
     {experiences.map((exp) => (
       <div class="w-full flex items-start justify-between py-2">
         <div class="flex items-start gap-3 min-w-0">
-          <div class="w-11 h-11 rounded-md bg-white flex items-center justify-center shrink-0">
+          <div class="w-11 h-11 rounded-lg bg-white flex items-center justify-center shrink-0">
             <img
               src={exp.logoSrc}
               alt={`${exp.company} logo`}
@@ -35,10 +35,10 @@ const experiences = [
           </div>
 
           <div class="flex flex-col leading-snug gap-0.5 min-w-0">
-          <div class="flex">
+            <div class="flex flex-col sm:flex-row gap-1">
             {exp.companyUrl ? (
               <a
-                class="text-primary text-base font-serif tracking-tight truncate"
+                class="text-primary text-base font-serif tracking-tight"
                 href={exp.companyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -51,23 +51,17 @@ const experiences = [
               </div>
             )}
             {exp.role ? (
-              <div class="text-xs opacity-80 tracking-tight truncate p-1">
+              <div class="hidden sm:block text-xs opacity-80 tracking-tight truncate p-1">
                 - {exp.role}
               </div>
             ) : null}
           </div>
-
-
             {exp.summary ? (
-              <div class="text-xs tracking-tight truncate">
+              <div class="text-xs tracking-tight">
                 {exp.summary}
               </div>
             ) : null}
           </div>
-        </div>
-
-        <div class="text-xs opacity-70 whitespace-nowrap pl-4 pt-0.5">
-          {exp.dateRange}
         </div>
       </div>
     ))}
