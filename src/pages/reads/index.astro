@@ -1,38 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { fetchLearningItems } from "../../util/google-sheet";
+import ReadsList from "../../components/ReadsList";
 
-const items = await fetchLearningItems("learning");
-
-//console.log(items)
-
-type GroupedItems = Record<
-  string,
-  {
-    read: Array<{ title: string; link: string }>;
-    lecture: Array<{ title: string; link: string }>;
-  }
->;
-
-const grouped = items.reduce<GroupedItems>((acc, item) => {
-  if (!acc[item.category]) {
-    acc[item.category] = {
-      read: [],
-      lecture: [],
-    };
-  }
-
-  acc[item.category][item.subtype].push({
-    title: item.title,
-    link: item.link,
-  });
-
-  return acc;
-}, {});
-
-const orderedCategories = Object.keys(grouped).sort((a, b) =>
-  a.localeCompare(b),
-);
+const googleSheetId = import.meta.env.GOOGLE_SHEET_ID ?? "";
 ---
 
 <Layout title="Siddarth Gundu • reads">
@@ -43,58 +13,6 @@ const orderedCategories = Object.keys(grouped).sort((a, b) =>
       Note: I haven't finished some of these books yet
     </h2>
 
-    <div class="pt-3 flex-col gap-2">
-      {
-        orderedCategories.map((category) => (
-          <section>
-            <h2 class="font-serif text-black mt-4 text-base md:text-lg">
-              {category}
-            </h2>
-
-            {grouped[category].read.length > 0 && (
-              <div class="mt-2">
-                <p class="text-md text-black ">Reads :</p>
-
-                <ul class="">
-                  {grouped[category].read.map((item) => (
-                    <li>
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="underline-offset-2 hover:underline"
-                      >
-                        {item.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {grouped[category].lecture.length > 0 && (
-              <div class="mt-4">
-                <p class="text-md text-black ">Videos :</p>
-
-                <ul class="">
-                  {grouped[category].lecture.map((item) => (
-                    <li>
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="underline-offset-2 hover:underline"
-                      >
-                        {item.title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-        ))
-      }
-    </div>
+    <ReadsList client:load googleSheetId={googleSheetId} />
   </div>
 </Layout>

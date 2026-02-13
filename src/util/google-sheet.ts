@@ -1,22 +1,9 @@
-type SheetCell = {
-  v: string | number | boolean | null;
-  f?: string;
-};
-
+type SheetCell = { v?: string | null };
 type GvizResponse = {
-  table?: {
-    cols?: Array<{ id: string; label: string; type: string }>;
-    rows?: Array<{ c: Array<SheetCell | null> }>;
-  };
+  table?: { rows?: Array<{ c: Array<SheetCell | null> }> };
 };
 
-export type LinkItem = {
-  title: string;
-  link: string;
-  [key: string]: string;
-};
-
-export type LearningSubtype = "read" | "lecture";
+export type LearningSubtype = "read" | "video";
 
 export type LearningItem = {
   category: string;
@@ -25,16 +12,24 @@ export type LearningItem = {
   link: string;
 };
 
-const sanitizeKey = (value: string, index: number) => {
-  const normalized = value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\s_-]/g, "")
-    .replace(/\s+/g, "_");
-  return normalized.length ? normalized : `col_${index}`;
+const CACHE_KEY = "learning_items";
+
+declare global {
+  interface Window {
+    __GOOGLE_SHEET_ID?: string;
+  }
+}
+
+const normalizeSubtype = (value: string): LearningSubtype | null => {
+  const v = value.trim().toLowerCase();
+  if (v === "read" || v === "reads") return "read";
+  if (v === "video" || v === "videos" || v === "lecture" || v === "lectures")
+    return "video";
+  return null;
 };
 
 const parseGviz = (payload: string): GvizResponse => {
+  // console.log("[Raw Payload ]", payload);
   const start = payload.indexOf("{");
   const end = payload.lastIndexOf("}");
 
@@ -45,113 +40,79 @@ const parseGviz = (payload: string): GvizResponse => {
   return JSON.parse(payload.slice(start, end + 1)) as GvizResponse;
 };
 
-export const fetchSheetRows = async (
-  sheetName: string,
-): Promise<Array<Record<string, string>>> => {
-  const sheetId = import.meta.env.GOOGLE_SHEET_ID;
+const get = (cells: SheetCell[] | undefined, i: number) =>
+  String(cells?.[i]?.v ?? "").trim();
 
-  if (!sheetId) {
-    throw new Error("GOOGLE_SHEET_ID is missing. Add it in your .env file.");
-  }
+export const fetchReadingItems = async (
+  sheetName = "reads"
+): Promise<LearningItem[]> => {
+  const sheetId =
+    import.meta.env.PUBLIC_GOOGLE_SHEET_ID ||
+    import.meta.env.GOOGLE_SHEET_ID ||
+    (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined);
 
-  const query = new URLSearchParams({
+  if (!sheetId) throw new Error("GOOGLE_SHEET_ID missing");
+
+  const qs = new URLSearchParams({
     sheet: sheetName,
     tqx: "out:json",
     headers: "1",
   });
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?${qs.toString()}`;
 
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?${query.toString()}`;
-  const response = await fetch(url);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch sheet: ${sheetName}`);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sheet: ${sheetName}`);
-  }
+  const json = parseGviz(await res.text());
+  const rows = json?.table?.rows ?? [];
 
-  const text = await response.text();
-  const data = parseGviz(text);
+  return rows
+    .map((r: any) => {
+      const c = r?.c as any[] | undefined;
 
-  const cols = data.table?.cols ?? [];
-  const rows = data.table?.rows ?? [];
-  const headers = cols.map((col, index) => sanitizeKey(col.label || col.id, index));
+      const category = get(c, 0);
+      const subtype = normalizeSubtype(get(c, 1));
+      const title = get(c, 2);
+      const link = get(c, 3);
 
-  return rows.map((row) => {
-    const entry: Record<string, string> = {};
-
-    row.c.forEach((cell, index) => {
-      const key = headers[index] ?? `col_${index}`;
-      const value = cell?.f ?? cell?.v ?? "";
-      entry[key] = String(value).trim();
-    });
-
-    return entry;
-  });
+      if (!category || !title || !link || !subtype) return null;
+      return { category, subtype, title, link };
+    })
+    .filter(Boolean) as LearningItem[];
 };
 
-export const fetchSheetLinks = async (sheetName: string): Promise<LinkItem[]> => {
-  const rows = await fetchSheetRows(sheetName);
+export const fetchLearningItems = async (): Promise<LearningItem[]> => {
+  return fetchReadingItems("reads");
+};
 
-  const getFirstMatch = (row: Record<string, string>, keys: string[]) => {
-    for (const key of keys) {
-      if (row[key]) return row[key];
+export const fetchLearningItemsWithCache = async (): Promise<LearningItem[]> => {
+  // localStorage is only available in the browser
+  if (typeof window === "undefined") {
+    return fetchLearningItems();
+  }
+
+  const cached = localStorage.getItem(CACHE_KEY);
+
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached) as LearningItem[];
+
+      // Background refresh
+      void fetchLearningItems()
+        .then((fresh) => {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
+        })
+        .catch(() => {});
+
+      return parsed;
+    } catch {
+      // Corrupted cache, continue with a fresh fetch below
+      localStorage.removeItem(CACHE_KEY);
     }
-    return "";
-  };
-
-  return rows
-    .map((row) => {
-      const title = getFirstMatch(row, ["title"]);
-      const link = getFirstMatch(row, ["link"]);
-
-      return {
-        ...row,
-        title,
-        link,
-      };
-    })
-    .filter((row) => row.title && row.link)
-    .map((row) => ({
-      ...row,
-      title: row.title,
-      link: row.link,
-    }));
-};
-
-const normalizeSubtype = (value: string): LearningSubtype | null => {
-  const normalized = value.trim().toLowerCase();
-
-  if (["read", "reads", "book", "article"].includes(normalized)) {
-    return "read";
   }
 
-  if (["lecture", "lectures", "video", "course"].includes(normalized)) {
-    return "lecture";
-  }
-
-  return null;
-};
-
-export const fetchLearningItems = async (
-  sheetName = "learning",
-): Promise<LearningItem[]> => {
-  const rows = await fetchSheetRows(sheetName);
-
-  return rows
-    .map((row) => {
-      const category = row.category?.trim() ?? "";
-      const title = row.title?.trim() ?? "";
-      const link = row.link?.trim() ?? "";
-      const subtype = normalizeSubtype(row.subtype ?? "");
-
-      if (!category || !title || !link || !subtype) {
-        return null;
-      }
-
-      return {
-        category,
-        subtype,
-        title,
-        link,
-      };
-    })
-    .filter((item): item is LearningItem => Boolean(item));
+  // First load
+  const data = await fetchLearningItems();
+  localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+  return data;
 };
