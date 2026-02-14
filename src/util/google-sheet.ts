@@ -58,11 +58,10 @@ export const fetchReadingItems = async (
 ): Promise<LearningItem[]> => {
   const sheetId = normalizeSheetId(
     import.meta.env.PUBLIC_GOOGLE_SHEET_ID ||
-      import.meta.env.GOOGLE_SHEET_ID ||
       (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined)
   );
 
-  if (!sheetId) throw new Error("GOOGLE_SHEET_ID missing");
+  if (!sheetId) throw new Error("PUBLIC_GOOGLE_SHEET_ID missing");
 
   const qs = new URLSearchParams({
     sheet: sheetName,
