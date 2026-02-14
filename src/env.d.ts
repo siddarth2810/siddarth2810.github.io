@@ -2,7 +2,7 @@
 
 interface ImportMetaEnv {
 	readonly BASE_URL: string;
-	readonly GOOGLE_SHEET_ID?: string;
+	readonly PUBLIC_GOOGLE_SHEET_ID?: string;
 }
 
 interface ImportMeta {

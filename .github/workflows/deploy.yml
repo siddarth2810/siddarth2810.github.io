@@ -25,6 +25,8 @@ jobs:
         uses: withastro/action@v2
         with:
           node-version: 20
+        env:
+          PUBLIC_GOOGLE_SHEET_ID: ${{ secrets.PUBLIC_GOOGLE_SHEET_ID }}
 
   deploy:
     needs: build
