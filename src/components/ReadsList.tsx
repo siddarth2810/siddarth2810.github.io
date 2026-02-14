@@ -31,6 +31,7 @@ const groupItems = (items: LearningItem[]): GroupedItems =>
 export default function ReadsList({ googleSheetId }: ReadsListProps) {
   const [items, setItems] = useState<LearningItem[] | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (googleSheetId) {
@@ -43,8 +44,12 @@ export default function ReadsList({ googleSheetId }: ReadsListProps) {
       .then((data) => {
         if (isActive) setItems(data);
       })
-      .catch(() => {
-        if (isActive) setHasError(true);
+      .catch((error) => {
+        if (!isActive) return;
+
+        console.error("Failed to load reads", error);
+        setHasError(true);
+        setErrorMessage(error instanceof Error ? error.message : null);
       });
 
     return () => {
@@ -56,7 +61,10 @@ export default function ReadsList({ googleSheetId }: ReadsListProps) {
 
   if (hasError) {
     return (
-      <p className="text-red-600 text-sm">Could not load reads right now.</p>
+      <p className="text-red-600 text-sm">
+        Could not load reads right now
+        {errorMessage ? ` (${errorMessage})` : ""}.
+      </p>
     );
   }
 

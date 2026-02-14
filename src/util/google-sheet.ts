@@ -28,6 +28,16 @@ const normalizeSubtype = (value: string): LearningSubtype | null => {
   return null;
 };
 
+const normalizeSheetId = (rawValue: string | undefined): string | undefined => {
+  if (!rawValue) return undefined;
+
+  const trimmed = rawValue.trim();
+
+  // Accept either a raw sheet ID or a full Google Sheet URL.
+  const match = trimmed.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return match?.[1] ?? trimmed;
+};
+
 const parseGviz = (payload: string): GvizResponse => {
   // console.log("[Raw Payload ]", payload);
   const start = payload.indexOf("{");
@@ -46,10 +56,11 @@ const get = (cells: SheetCell[] | undefined, i: number) =>
 export const fetchReadingItems = async (
   sheetName = "reads"
 ): Promise<LearningItem[]> => {
-  const sheetId =
+  const sheetId = normalizeSheetId(
     import.meta.env.PUBLIC_GOOGLE_SHEET_ID ||
-    import.meta.env.GOOGLE_SHEET_ID ||
-    (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined);
+      import.meta.env.GOOGLE_SHEET_ID ||
+      (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined)
+  );
 
   if (!sheetId) throw new Error("GOOGLE_SHEET_ID missing");
 
@@ -61,9 +72,14 @@ export const fetchReadingItems = async (
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?${qs.toString()}`;
 
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch sheet: ${sheetName}`);
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch sheet: ${sheetName} (${res.status} ${res.statusText})`
+    );
+  }
 
-  const json = parseGviz(await res.text());
+  const body = await res.text();
+  const json = parseGviz(body);
   const rows = json?.table?.rows ?? [];
 
   return rows
