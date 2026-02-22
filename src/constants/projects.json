@@ -22,13 +22,20 @@
   },
   {
     "id":4,
+    "title": "Knot",
+    "description": "A browser extension to save your readings and use OpenClaw to draft an online post",
+    "tech": ["javascript"],
+    "link":  "https://github.com/siddarth2810/Knot"
+  },
+  {
+    "id":5,
     "title": "Blast Box",
     "description": "A real‑time multiplayer shooting game inspired by diep.io.",
     "tech": ["uWebSockets", "p5.js", "Azure"],
     "link":  "https://github.com/siddarth2810/blast-box"
   },
   {
-    "id": 5,
+    "id": 6,
     "title": "Compiler",
     "description": "Built a small compiler to understand more about Compiler theory",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
