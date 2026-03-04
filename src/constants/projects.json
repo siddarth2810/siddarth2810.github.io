@@ -24,7 +24,7 @@
     "id":4,
     "title": "Knot",
     "description": "A browser extension to save your readings and use OpenClaw to draft an online post",
-    "tech": ["javascript"],
+    "tech": ["JavaScript", "OpenClaw"],
     "link":  "https://github.com/siddarth2810/Knot"
   },
   {
@@ -40,5 +40,12 @@
     "description": "Built a small compiler to understand more about Compiler theory",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
     "link":  "https://github.com/siddarth2810/rust-compiler"
+  },
+  {
+    "id": 7,
+    "title": "SiteKick",
+    "description": "Generate and deploy full websites from simple prompts via WhatsApp.",
+    "tech": ["TypeScript", "LLMs"],
+    "link":  "https://github.com/aifambience/SiteKick"
   }
 ]
