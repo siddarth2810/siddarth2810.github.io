@@ -1,16 +1,26 @@
 ---
 import "../styles/global.css";
 import { AstroFont } from "astro-font";
-import Nav from "../components/Nav.astro";
-import Footer from "../components/Footer.astro";
 import { ViewTransitions } from "astro:transitions";
-import Metadata from "../components/Metadata.astro";
 import BottomBlur from "../components/ui/BottomBlur.astro";
+import { MdOutlineKeyboardBackspace } from "react-icons/md";
 
 interface Props {
   title: string;
 }
 const { title } = Astro.props;
+
+const baseUrl = import.meta.env.BASE_URL;
+const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+const withBase = (path: string) => {
+  const cleaned = path.replace(/^\/+/, "");
+  return `${baseWithTrailingSlash}${cleaned}`;
+};
+
+const currentPath = Astro.url.pathname;
+const baseNoTrailingSlash = baseWithTrailingSlash.replace(/\/$/, "");
+const isHomePage =
+  currentPath === baseWithTrailingSlash || currentPath === baseNoTrailingSlash;
 ---
 
 <!doctype html>
@@ -23,14 +33,25 @@ const { title } = Astro.props;
     />
     <meta name="viewport" content="width=device-width" />
 
-    <Metadata
-      slot="head"
+    <meta
       title="Siddarth Gundu"
-      description="A personal portfolio website made with Astro, React and Tailwind CSS"
-      image={`${import.meta.env.SITE}/og.png`}
-      canonicalUrl={import.meta.env.SITE}
-      type="website"
+      property="og:title"
+      content="Siddarth Gundu"
     />
+    <meta
+      property="og:description"
+      content="A personal portfolio website made with Astro, React and Tailwind CSS"
+    />
+    <meta property="og:image" content={`${import.meta.env.SITE}/og.png`} />
+    <meta property="og:url" content={import.meta.env.SITE} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Siddarth Gundu" />
+    <meta
+      name="twitter:description"
+      content="A personal portfolio website made with Astro, React and Tailwind CSS"
+    />
+    <meta name="twitter:image" content={`${import.meta.env.SITE}/og.png`} />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -76,9 +97,50 @@ const { title } = Astro.props;
     class="mx-auto max-w-[760px] overflow-x-hidden px-6 py-24 md:overflow-x-visible"
   >
     <main class="relative font-satoshi">
-      <Nav />
+      <nav class="flex items-center justify-between pb-8 tracking-tight">
+        <div>
+          {
+            isHomePage ? (
+              <img
+                src={withBase("favicon.svg")}
+                alt="logo"
+                width="22"
+                height="22"
+                class="transition-all duration-300 ease-linear hover:rotate-180"
+              />
+            ) : (
+              <a
+                href={withBase("")}
+                target="_self"
+                class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
+              >
+                <MdOutlineKeyboardBackspace className="-mt-0.5 inline-block" />
+                <span>home</span>
+              </a>
+            )
+          }
+        </div>
+        <div class="flex items-center gap-4">
+          <a
+            href={withBase("blogs")}
+            target="_self"
+            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
+          >
+            writes
+          </a>
+          <a
+            href={withBase("reads")}
+            target="_self"
+            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
+          >
+            reads
+          </a>
+        </div>
+      </nav>
       <slot />
-      <Footer />
+      <footer class="mt-16 text-center text-sm text-gray-500">
+        <p>&copy; 2026 Siddarth Gundu.</p>
+      </footer>
       <BottomBlur />
     </main>
   </body>
