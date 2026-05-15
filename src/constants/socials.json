@@ -1,39 +1,37 @@
 [
-	{
-		"id": 1,
-		"name": "resume",
-		"url": "https://drive.google.com/file/d/1kPI5UyNzn2rmwXqVJryC27CKo0obgcs9/view?usp=sharing",
-		"target": "_self",
-		"icon": "resume"
-	},
-	{
-		"id": 2,
-		"name": "twitter",
-		"url": "https://x.com/Siddarth_0910",
-		"target": "_blank",
-		"icon": "twitter"
-	},
-	{
-		"id": 3,
-		"name": "github",
-		"url": "https://github.com/siddarth2810",
-		"target": "_blank",
-		"icon": "github"
-	},
-	{
-		"id": 4,
-		"name": "linkedin",
-		"url": "https://www.linkedin.com/in/siddarth2810/",
-		"target": "_blank",
-		"icon": "linkedin"
-	},
-	{
-		"id": 5,
-		"name": "email",
-		"url": "mailto:siddarthg0910@gmail.com",
-		"target": "_blank",
-		"icon": "email"
-	}
-
+  {
+    "id": 1,
+    "name": "resume",
+    "url": "https://drive.google.com/file/d/1kPI5UyNzn2rmwXqVJryC27CKo0obgcs9/view?usp=sharing",
+    "target": "_self",
+    "icon": "resume"
+  },
+  {
+    "id": 2,
+    "name": "twitter",
+    "url": "https://x.com/Siddarth_0910",
+    "target": "_blank",
+    "icon": "twitter"
+  },
+  {
+    "id": 3,
+    "name": "github",
+    "url": "https://github.com/siddarth2810",
+    "target": "_blank",
+    "icon": "github"
+  },
+  {
+    "id": 4,
+    "name": "linkedin",
+    "url": "https://www.linkedin.com/in/siddarth2810/",
+    "target": "_blank",
+    "icon": "linkedin"
+  },
+  {
+    "id": 5,
+    "name": "email",
+    "url": "mailto:siddarthg0910@gmail.com",
+    "target": "_blank",
+    "icon": "email"
+  }
 ]
-

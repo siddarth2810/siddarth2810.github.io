@@ -1,4 +1,4 @@
-type SheetCell = { v?: string | null };
+type SheetCell = { v?: unknown };
 type GvizResponse = {
   table?: { rows?: Array<{ c: Array<SheetCell | null> }> };
 };
@@ -39,7 +39,6 @@ const normalizeSheetId = (rawValue: string | undefined): string | undefined => {
 };
 
 const parseGviz = (payload: string): GvizResponse => {
-  // console.log("[Raw Payload ]", payload);
   const start = payload.indexOf("{");
   const end = payload.lastIndexOf("}");
 
@@ -50,15 +49,18 @@ const parseGviz = (payload: string): GvizResponse => {
   return JSON.parse(payload.slice(start, end + 1)) as GvizResponse;
 };
 
-const get = (cells: SheetCell[] | undefined, i: number) =>
+const get = (cells: Array<SheetCell | null> | undefined, i: number) =>
   String(cells?.[i]?.v ?? "").trim();
 
+const isLearningItem = (item: LearningItem | null): item is LearningItem =>
+  item !== null;
+
 export const fetchReadingItems = async (
-  sheetName = "reads"
+  sheetName = "reads",
 ): Promise<LearningItem[]> => {
   const sheetId = normalizeSheetId(
     import.meta.env.PUBLIC_GOOGLE_SHEET_ID ||
-      (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined)
+      (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined),
   );
 
   if (!sheetId) throw new Error("PUBLIC_GOOGLE_SHEET_ID missing");
@@ -73,7 +75,7 @@ export const fetchReadingItems = async (
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(
-      `Failed to fetch sheet: ${sheetName} (${res.status} ${res.statusText})`
+      `Failed to fetch sheet: ${sheetName} (${res.status} ${res.statusText})`,
     );
   }
 
@@ -82,25 +84,26 @@ export const fetchReadingItems = async (
   const rows = json?.table?.rows ?? [];
 
   return rows
-    .map((r: any) => {
-      const c = r?.c as any[] | undefined;
-
-      const category = get(c, 0);
-      const subtype = normalizeSubtype(get(c, 1));
-      const title = get(c, 2);
-      const link = get(c, 3);
+    .map((row) => {
+      const cells = row.c;
+      const category = get(cells, 0);
+      const subtype = normalizeSubtype(get(cells, 1));
+      const title = get(cells, 2);
+      const link = get(cells, 3);
 
       if (!category || !title || !link || !subtype) return null;
       return { category, subtype, title, link };
     })
-    .filter(Boolean) as LearningItem[];
+    .filter(isLearningItem);
 };
 
 export const fetchLearningItems = async (): Promise<LearningItem[]> => {
   return fetchReadingItems("reads");
 };
 
-export const fetchLearningItemsWithCache = async (): Promise<LearningItem[]> => {
+export const fetchLearningItemsWithCache = async (): Promise<
+  LearningItem[]
+> => {
   // localStorage is only available in the browser
   if (typeof window === "undefined") {
     return fetchLearningItems();

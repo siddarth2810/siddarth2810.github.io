@@ -2,27 +2,26 @@
   {
     "id": 1,
     "title": "My Linux Kernel Mentorship experience",
-    "link":  "https://dev.to/siddarth2810/my-linux-kernel-mentorship-experience-4870"
+    "link": "https://dev.to/siddarth2810/my-linux-kernel-mentorship-experience-4870"
   },
   {
     "id": 2,
     "title": "Multi-tenant Loki on Kubernetes",
-    "link":  "https://dev.to/siddarth2810/multi-tenant-loki-on-kubernetes-o17"
+    "link": "https://dev.to/siddarth2810/multi-tenant-loki-on-kubernetes-o17"
   },
   {
-    "id":3,
+    "id": 3,
     "title": "Faster Terminal Navigation with Tmux and Fuzzy finder",
-    "link":  "https://dev.to/siddarth2810/faster-terminal-navigation-with-tmux-and-fuzzy-finder-1217"
+    "link": "https://dev.to/siddarth2810/faster-terminal-navigation-with-tmux-and-fuzzy-finder-1217"
   },
   {
     "id": 4,
     "title": "Introduction to Message Brokers",
-    "link":  "https://dev.to/siddarth2810/introduction-to-message-brokers-kafka-essentials-3ddk"
+    "link": "https://dev.to/siddarth2810/introduction-to-message-brokers-kafka-essentials-3ddk"
   },
   {
     "id": 5,
     "title": "Navigating Your First Tech Conference",
-    "link":  "https://siddarth.hashnode.dev/navigating-your-first-tech-conference"
+    "link": "https://siddarth.hashnode.dev/navigating-your-first-tech-conference"
   }
 ]
-

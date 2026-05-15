@@ -4,19 +4,16 @@ import { RiArrowRightUpLine } from "react-icons/ri";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import externalBlogs from "../../constants/blogs.json";
+import { getHostname } from "../../util/external-links";
 import {
   formatPostDate,
   getPostSummary,
   getReadingTime,
   sortPostsByDate,
 } from "../../util/blog";
+import { withBase } from "../../util/site-paths";
 
 type BlogPost = CollectionEntry<"blog">;
-
-const baseUrl = import.meta.env.BASE_URL;
-const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-const withBase = (path: string) =>
-  `${baseWithTrailingSlash}${path.replace(/^\/+/, "")}`;
 
 const posts = sortPostsByDate(
   await getCollection("blog", (post: BlogPost) => !post.data.draft),
@@ -24,7 +21,7 @@ const posts = sortPostsByDate(
 
 const externalPosts = externalBlogs.map((blog) => ({
   ...blog,
-  source: new URL(blog.link).hostname.replace(/^www\./, ""),
+  source: getHostname(blog.link),
 }));
 ---
 
@@ -40,26 +37,29 @@ const externalPosts = externalBlogs.map((blog) => ({
 
     <div class="blog-list" aria-label="Local blog posts">
       {
-        posts.map((post) => (
-          <article class="blog-card">
-            <a href={withBase(`blogs/${post.slug}`)} class="blog-card__link">
-              <h2>{post.data.title}</h2>
-              <p class="blog-card__meta">
-                {formatPostDate(post.data.pubDate)} · About{" "}
-                {getReadingTime(post)} minute
-                {getReadingTime(post) === 1 ? "" : "s"} long
-              </p>
-              <p class="blog-card__summary">{getPostSummary(post)}</p>
-              {post.data.tags.length > 0 && (
-                <ul class="blog-card__tags" aria-label="Tags">
-                  {post.data.tags.map((tag: string) => (
-                    <li>{tag}</li>
-                  ))}
-                </ul>
-              )}
-            </a>
-          </article>
-        ))
+        posts.map((post) => {
+          const minutes = getReadingTime(post);
+
+          return (
+            <article class="blog-card">
+              <a href={withBase(`blogs/${post.slug}`)} class="blog-card__link">
+                <h2>{post.data.title}</h2>
+                <p class="blog-card__meta">
+                  {formatPostDate(post.data.pubDate)} · About {minutes} minute
+                  {minutes === 1 ? "" : "s"} long
+                </p>
+                <p class="blog-card__summary">{getPostSummary(post)}</p>
+                {post.data.tags.length > 0 && (
+                  <ul class="blog-card__tags" aria-label="Tags">
+                    {post.data.tags.map((tag: string) => (
+                      <li>{tag}</li>
+                    ))}
+                  </ul>
+                )}
+              </a>
+            </article>
+          );
+        })
       }
     </div>
 

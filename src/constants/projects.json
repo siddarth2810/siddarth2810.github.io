@@ -3,7 +3,7 @@
     "id": 1,
     "slug": "askmydoc",
     "title": "AskMyDoc",
-    "description":  "RAG-based PDF question-answering assistant.",
+    "description": "RAG-based PDF question-answering assistant.",
     "tech": ["FastAPI", "Next.js", "FAISS", "OpenAI Embeddings"],
     "badges": ["AI Tool", "Document QA"],
     "link": "https://github.com/siddarth2810/AskMyDoc_v2"
@@ -21,49 +21,54 @@
     "id": 3,
     "slug": "http-server",
     "title": "HTTP Server",
-    "description":  "HTTP server built from scratch in Go.",
+    "description": "HTTP server built from scratch in Go.",
     "tech": ["Go", "Bash"],
     "badges": ["Backend", "Protocols"],
-    "link": "https://github.com/siddarth2810/http-server"  },
+    "link": "https://github.com/siddarth2810/http-server"
+  },
   {
     "id": 4,
     "slug": "compiler",
     "title": "Compiler",
-    "description":"Small compiler built to learn language internals.",
+    "description": "Small compiler built to learn language internals.",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/rust-compiler"  },
+    "link": "https://github.com/siddarth2810/rust-compiler"
+  },
   {
     "id": 5,
     "slug": "2D Game",
     "title": "Blast-box",
-    "description":"A real-time multiplayer game inspired from the game diep.io.",
+    "description": "A real-time multiplayer game inspired from the game diep.io.",
     "tech": ["JavaScript", "Web Sockets"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/blast-box"  },
+    "link": "https://github.com/siddarth2810/blast-box"
+  },
   {
     "id": 6,
     "slug": "AI",
     "title": "Knot",
-    "description":"A browser to save your readings and use OpenClaw to draft an online post",
+    "description": "A browser to save your readings and use OpenClaw to draft an online post",
     "tech": ["OpenClaw", "JavaScript"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/Knot"  },
+    "link": "https://github.com/siddarth2810/Knot"
+  },
   {
     "id": 7,
     "slug": "DevOps",
     "title": "Daily Planner",
-    "description":"A simple Daily Planner deployed on Kubernetes cluster",
+    "description": "A simple Daily Planner deployed on Kubernetes cluster",
     "tech": ["Kubernetes", "BuildSafe", "Azure"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/devops-project-cloned"  },
+    "link": "https://github.com/siddarth2810/devops-project-cloned"
+  },
   {
     "id": 8,
     "slug": "AI",
     "title": "SiteKick",
-    "description":"Generate and deploy full websites from prompts using WhatsApp",
+    "description": "Generate and deploy full websites from prompts using WhatsApp",
     "tech": ["Vercel SDK", "TypeScript"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/aifambience/SiteKick"  }
-
+    "link": "https://github.com/aifambience/SiteKick"
+  }
 ]

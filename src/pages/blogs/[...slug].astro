@@ -78,24 +78,7 @@ const minutes = getReadingTime(post);
   </div>
 
   <script>
-    const scrollBtn = document.getElementById(
-      "to-top-btn",
-    ) as HTMLButtonElement | null;
-    const targetHeader = document.getElementById("blog-hero");
-
-    if (scrollBtn && targetHeader) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          scrollBtn.dataset.show = (!entry.isIntersecting).toString();
-        });
-      });
-
-      observer.observe(targetHeader);
-
-      scrollBtn.addEventListener("click", () => {
-        document.documentElement.scrollTo({ behavior: "smooth", top: 0 });
-      });
-    }
+    import "../../scripts/blog-to-top";
   </script>
 </Layout>
 

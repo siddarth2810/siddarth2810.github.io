@@ -4,46 +4,22 @@ import socialData from "../constants/socials.json";
 import projects from "../constants/projects.json";
 import writingPostsData from "../constants/blogs.json";
 import ProjectCard from "../components/ui/ProjectCard.astro";
-import CommunityGrid from "../components/CommunityGrid"
+import CommunityGrid from "../components/CommunityGrid";
 import { Icon } from "astro-icon/components";
 import { RiArrowRightUpLine } from "react-icons/ri";
-
-
+import { experiences } from "../constants/experiences";
 import { getCommunityImages } from "../util/community-images";
+import { getHostname } from "../util/external-links";
+import { withBase } from "../util/site-paths";
 
 const communityImages = await getCommunityImages();
 
 const socials = socialData;
-const baseUrl = import.meta.env.BASE_URL;
-const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-const withBase = (path: string) =>
-  `${baseWithTrailingSlash}${path.replace(/^\/+/, "")}`;
-
 const featuredProjects = projects.slice(0, 3);
 const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
   ...post,
-  source: new URL(post.link).hostname.replace(/^www\./, ""),
+  source: getHostname(post.link),
 }));
-const experiences = [
-  {
-    company: "Tower Cloud",
-    companyUrl: "https://tower.cloud",
-    icon: "/tower.webp",
-    role: "Software Engineer",
-    dateRange: "2025 - Present",
-    summary:
-      "Building observability and platform infrastructure across the cloud stack. Redesigned auth flows with Keycloak JWT verification, deployed Percona PostgreSQL on Kubernetes, and automated backup and restore workflows with Velero.",
-  },
-  {
-    company: "The Linux Foundation",
-    companyUrl: "https://www.linuxfoundation.org",
-    icon: "/linux_foundation.webp",
-    role: "Linux Kernel Mentee",
-    dateRange: "2025",
-    summary:
-      "Contributed patches to the upstream Linux kernel while working with maintainers. Used Syzkaller, Smatch, and Coccinelle to reproduce bugs, analyze reports, and validate fixes.",
-  },
-];
 ---
 
 <Layout title="Siddarth Gundu">
@@ -65,8 +41,7 @@ const experiences = [
       >
         Cortex Metrics,
       </a>
-      the Linux kernel, and built observability infrastructure at Tower
-      Cloud.
+      the Linux kernel, and built observability infrastructure at Tower Cloud.
     </p>
     <p class="text-sm">
       I run a Ubuntu setup with i3, check out my
@@ -104,28 +79,27 @@ const experiences = [
     <div class="experience-header">
       <h2 class="font-serif">Work Experience</h2>
     </div>
-                <div class="experience-list">
-  {
-    experiences.map((exp) => (
-      <article class="experience-item">
-        <img
-          class="experience-logo"
-          src={exp.icon}
-          alt={`${exp.company} logo`}
-          loading="lazy"
-        />
+    <div class="experience-list">
+      {
+        experiences.map((exp) => (
+          <article class="experience-item">
+            <img
+              class="experience-logo"
+              src={exp.icon}
+              alt={`${exp.company} logo`}
+              loading="lazy"
+            />
 
-        <p class="experience-summary">
-          <strong>
-            {exp.company} - {exp.role}.
-          </strong>{" "}
-          {exp.summary}
-        </p>
-      </article>
-    ))
-  }
-</div>
-
+            <p class="experience-summary">
+              <strong>
+                {exp.company} - {exp.role}.
+              </strong>{" "}
+              {exp.summary}
+            </p>
+          </article>
+        ))
+      }
+    </div>
   </section>
 
   <section class="home-section" id="projects">
@@ -157,9 +131,7 @@ const experiences = [
     <header class="section-header">
       <div class="section-header__text">
         <h2 class="section-heading">Writing</h2>
-        <p class="section-copy">
-                Articles on engineering and technology
-        </p>
+        <p class="section-copy">Articles on engineering and technology</p>
       </div>
 
       <a class="section-action" href={withBase("blogs")}>
@@ -191,5 +163,5 @@ const experiences = [
     </div>
   </section>
 
- <CommunityGrid client:load images={communityImages} />
+  <CommunityGrid client:load images={communityImages} />
 </Layout>

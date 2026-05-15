@@ -1,29 +1,17 @@
 ---
 import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
+import SiteNav from "../components/SiteNav.astro";
 import BottomBlur from "../components/ui/BottomBlur.astro";
-import {
-  MdOutlineDarkMode,
-  MdOutlineKeyboardBackspace,
-  MdOutlineLightMode,
-} from "react-icons/md";
+import { isBasePath } from "../util/site-paths";
 
 interface Props {
   title: string;
 }
 const { title } = Astro.props;
 
-const baseUrl = import.meta.env.BASE_URL;
-const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-const withBase = (path: string) => {
-  const cleaned = path.replace(/^\/+/, "");
-  return `${baseWithTrailingSlash}${cleaned}`;
-};
-
 const currentPath = Astro.url.pathname;
-const baseNoTrailingSlash = baseWithTrailingSlash.replace(/\/$/, "");
-const isHomePage =
-  currentPath === baseWithTrailingSlash || currentPath === baseNoTrailingSlash;
+const isHomePage = isBasePath(currentPath);
 ---
 
 <!doctype html>
@@ -63,7 +51,12 @@ const isHomePage =
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)",
       ).matches;
-      const theme = storedTheme ?? (prefersDark ? "dark" : "light");
+      const theme =
+        storedTheme === "dark" || storedTheme === "light"
+          ? storedTheme
+          : prefersDark
+            ? "dark"
+            : "light";
       document.documentElement.dataset.theme = theme;
       document.documentElement.style.colorScheme = theme;
     </script>
@@ -73,84 +66,7 @@ const isHomePage =
     class="bodyy mx-auto max-w-[980px] overflow-x-hidden px-5 py-20 sm:px-6 md:overflow-x-visible md:px-8 md:py-24"
   >
     <main class="relative">
-      <nav
-        class="site-nav flex items-center justify-between pb-8 tracking-tight"
-      >
-        <div class="site-nav__home">
-          {
-            isHomePage ? (
-              <button
-                type="button"
-                class="theme-toggle"
-                data-theme-toggle
-                aria-label="Switch to dark theme"
-                title="Switch theme"
-              >
-                <MdOutlineDarkMode
-                  className="theme-toggle__moon"
-                  aria-hidden="true"
-                />
-                <MdOutlineLightMode
-                  className="theme-toggle__sun"
-                  aria-hidden="true"
-                />
-              </button>
-            ) : (
-              <a
-                href={withBase("")}
-                target="_self"
-                class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-              >
-                <MdOutlineKeyboardBackspace className="-mt-0.5 inline-block" />
-                <span>home</span>
-              </a>
-            )
-          }
-        </div>
-        <div class="site-nav__links flex items-center gap-4">
-          <a
-            href={withBase("projects")}
-            target="_self"
-            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-          >
-            projects
-          </a>
-          <a
-            href={withBase("blogs")}
-            target="_self"
-            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-          >
-            writings
-          </a>
-          <a
-            href={withBase("reads")}
-            target="_self"
-            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-          >
-            reads
-          </a>
-          {
-            !isHomePage && (
-              <button
-                type="button"
-                class="theme-toggle"
-                data-theme-toggle
-                aria-label="Switch to dark theme"
-                title="Switch theme"
-              >
-                <MdOutlineDarkMode
-                  className="theme-toggle__moon"
-                  aria-hidden="true"
-                />
-                <MdOutlineLightMode
-                  className="theme-toggle__sun"
-                  aria-hidden="true"
-                />
-              </button>
-            )
-          }
-        </div>
-      </nav>
+      <SiteNav isHomePage={isHomePage} />
       <slot />
       <footer class="text-muted mt-16 text-center text-sm">
         <p>&copy; 2026 Siddarth Gundu.</p>
@@ -158,69 +74,7 @@ const isHomePage =
       <BottomBlur />
     </main>
     <script>
-      const themeWindow = window as typeof window & {
-        __themeToggleBound?: boolean;
-      };
-
-      const getPreferredTheme = () => {
-        const storedTheme = localStorage.getItem("theme");
-        if (storedTheme === "dark" || storedTheme === "light") {
-          return storedTheme;
-        }
-
-        return window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
-      };
-
-      const getCurrentTheme = () =>
-        document.documentElement.dataset.theme ?? getPreferredTheme();
-
-      const applyTheme = (theme: string, root = document.documentElement) => {
-        root.dataset.theme = theme;
-        root.style.colorScheme = theme;
-      };
-
-      const updateThemeToggleLabels = (theme: string) => {
-        document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
-          const nextTheme = theme === "dark" ? "light" : "dark";
-          toggle.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
-        });
-      };
-
-      const setTheme = (theme: string) => {
-        applyTheme(theme);
-        localStorage.setItem("theme", theme);
-        updateThemeToggleLabels(theme);
-      };
-
-      applyTheme(getPreferredTheme());
-      updateThemeToggleLabels(getCurrentTheme());
-
-      document.addEventListener("astro:page-load", () => {
-        updateThemeToggleLabels(getCurrentTheme());
-      });
-
-      document.addEventListener("astro:before-swap", (event) => {
-        const newDocument = (event as Event & { newDocument: Document })
-          .newDocument;
-        applyTheme(getCurrentTheme(), newDocument.documentElement);
-      });
-
-      if (!themeWindow.__themeToggleBound) {
-        themeWindow.__themeToggleBound = true;
-
-        document.addEventListener("click", (event) => {
-          const target = event.target;
-          if (!(target instanceof Element)) return;
-
-          const toggle = target.closest("[data-theme-toggle]");
-          if (!toggle) return;
-
-          const theme = getCurrentTheme();
-          setTheme(theme === "dark" ? "light" : "dark");
-        });
-      }
+      import "../scripts/theme";
     </script>
   </body>
 </html>

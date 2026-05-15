@@ -1,21 +1,13 @@
 ---
 import { RiArrowRightUpLine } from "react-icons/ri";
-
-type ProjectPreview = {
-  eyebrow: string;
-  title: string;
-  lines: string[];
-};
+import { isExternalUrl } from "../../util/external-links";
 
 type Project = {
   title: string;
-  shortDescription?: string;
   description: string;
   details?: string;
   tech: string[];
-  badges?: string[];
   link: string;
-  preview?: ProjectPreview;
 };
 
 interface Props {
@@ -24,7 +16,7 @@ interface Props {
 }
 
 const { project, showDetails = true } = Astro.props;
-const isExternal = /^https?:\/\//.test(project.link);
+const isExternal = isExternalUrl(project.link);
 ---
 
 <a
@@ -51,6 +43,5 @@ const isExternal = /^https?:\/\//.test(project.link);
     }
 
     <p class="project-card__tech">Tech: {project.tech.join(", ")}</p>
-
   </div>
 </a>
