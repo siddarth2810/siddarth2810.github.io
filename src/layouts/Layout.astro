@@ -1,26 +1,17 @@
 ---
 import "../styles/global.css";
-import { AstroFont } from "astro-font";
 import { ViewTransitions } from "astro:transitions";
+import SiteNav from "../components/SiteNav.astro";
 import BottomBlur from "../components/ui/BottomBlur.astro";
-import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import { isBasePath } from "../util/site-paths";
 
 interface Props {
   title: string;
 }
 const { title } = Astro.props;
 
-const baseUrl = import.meta.env.BASE_URL;
-const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-const withBase = (path: string) => {
-  const cleaned = path.replace(/^\/+/, "");
-  return `${baseWithTrailingSlash}${cleaned}`;
-};
-
 const currentPath = Astro.url.pathname;
-const baseNoTrailingSlash = baseWithTrailingSlash.replace(/\/$/, "");
-const isHomePage =
-  currentPath === baseWithTrailingSlash || currentPath === baseNoTrailingSlash;
+const isHomePage = isBasePath(currentPath);
 ---
 
 <!doctype html>
@@ -33,11 +24,7 @@ const isHomePage =
     />
     <meta name="viewport" content="width=device-width" />
 
-    <meta
-      title="Siddarth Gundu"
-      property="og:title"
-      content="Siddarth Gundu"
-    />
+    <meta title="Siddarth Gundu" property="og:title" content="Siddarth Gundu" />
     <meta
       property="og:description"
       content="A personal portfolio website made with Astro, React and Tailwind CSS"
@@ -59,89 +46,35 @@ const isHomePage =
     />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      const storedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const theme =
+        storedTheme === "dark" || storedTheme === "light"
+          ? storedTheme
+          : prefersDark
+            ? "dark"
+            : "light";
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    </script>
     <ViewTransitions />
-    <AstroFont
-      config={[
-        {
-          name: "Satoshi",
-          src: [
-            {
-              style: "normal",
-              weight: "400 500 600 700 800 900",
-              path: "./public/fonts/Satoshi-Variable.woff2",
-            },
-          ],
-          preload: true,
-          display: "swap",
-          selector: "body",
-          fallback: "sans-serif",
-        },
-        {
-          name: "Instrument-Serif",
-          src: [
-            {
-              style: "normal",
-              weight: "400",
-              path: "./public/fonts/InstrumentSerif-Regular.ttf",
-            },
-          ],
-          preload: true,
-          display: "swap",
-          selector: "body",
-          fallback: "serif",
-        },
-      ]}
-    />
   </head>
   <body
-    class="mx-auto max-w-[760px] overflow-x-hidden px-6 py-24 md:overflow-x-visible"
+    class="bodyy mx-auto max-w-[980px] overflow-x-hidden px-5 py-20 sm:px-6 md:overflow-x-visible md:px-8 md:py-24"
   >
-    <main class="relative font-satoshi">
-      <nav class="flex items-center justify-between pb-8 tracking-tight">
-        <div>
-          {
-            isHomePage ? (
-              <img
-                src={withBase("favicon.svg")}
-                alt="logo"
-                width="22"
-                height="22"
-                class="transition-all duration-300 ease-linear hover:rotate-180"
-              />
-            ) : (
-              <a
-                href={withBase("")}
-                target="_self"
-                class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-              >
-                <MdOutlineKeyboardBackspace className="-mt-0.5 inline-block" />
-                <span>home</span>
-              </a>
-            )
-          }
-        </div>
-        <div class="flex items-center gap-4">
-          <a
-            href={withBase("blogs")}
-            target="_self"
-            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-          >
-            writes
-          </a>
-          <a
-            href={withBase("reads")}
-            target="_self"
-            class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
-          >
-            reads
-          </a>
-        </div>
-      </nav>
+    <main class="relative">
+      <SiteNav isHomePage={isHomePage} />
       <slot />
-      <footer class="mt-16 text-center text-sm text-gray-500">
+      <footer class="text-muted mt-16 text-center text-sm">
         <p>&copy; 2026 Siddarth Gundu.</p>
       </footer>
       <BottomBlur />
     </main>
+    <script>
+      import "../scripts/theme";
+    </script>
   </body>
 </html>

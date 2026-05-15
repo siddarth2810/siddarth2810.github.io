@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchLearningItemsWithCache, type LearningItem } from "../util/google-sheet";
+import {
+  fetchLearningItemsWithCache,
+  type LearningItem,
+} from "../util/google-sheet";
 
 type LinkItem = { title: string; link: string };
 
@@ -77,24 +80,22 @@ export default function ReadsList({ googleSheetId }: ReadsListProps) {
   );
 
   return (
-    <div className="pt-3 flex-col gap-2">
+    <div className="reads-list">
       {orderedCategories.map((category) => (
-        <section key={category}>
-          <h2 className="font-serif text-black mt-4 text-base md:text-lg">
-            {category}
-          </h2>
+        <section className="reads-list__section" key={category}>
+          <h2 className="reads-list__category">{category}</h2>
 
           {grouped[category].read.length > 0 && (
-            <div className="mt-2">
-              <p className="text-md text-black">Reads :</p>
-              <ul>
+            <div className="reads-list__group">
+              <p className="reads-list__label">Reads</p>
+              <ul className="reads-list__items">
                 {grouped[category].read.map((item) => (
                   <li key={item.link}>
                     <a
                       href={item.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline-offset-2 hover:underline"
+                      className="reads-list__link"
                     >
                       {item.title}
                     </a>
@@ -105,16 +106,16 @@ export default function ReadsList({ googleSheetId }: ReadsListProps) {
           )}
 
           {grouped[category].video.length > 0 && (
-            <div className="mt-4">
-              <p className="text-md text-black">Videos :</p>
-              <ul>
+            <div className="reads-list__group">
+              <p className="reads-list__label">Videos</p>
+              <ul className="reads-list__items">
                 {grouped[category].video.map((item) => (
                   <li key={item.link}>
                     <a
                       href={item.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline-offset-2 hover:underline"
+                      className="reads-list__link"
                     >
                       {item.title}
                     </a>

@@ -1,0 +1,472 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { formatPostDate, getReadingTime } from "../../util/blog";
+
+type BlogPost = CollectionEntry<"blog">;
+
+export async function getStaticPaths() {
+  const posts = await getCollection(
+    "blog",
+    (post: BlogPost) => !post.data.draft,
+  );
+
+  return posts.map((post: BlogPost) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const minutes = getReadingTime(post);
+---
+
+<Layout title={`${post.data.title} • Siddarth Gundu`}>
+  <div class="blog-post-shell">
+    <article class="blog-post" data-pagefind-body>
+      <header class="blog-post__header" id="blog-hero">
+        <h1>{post.data.title}</h1>
+        <p class="blog-post__meta">
+          Siddarth Gundu - {formatPostDate(post.data.pubDate)} · {minutes} min read
+        </p>
+        {
+          post.data.description && (
+            <p class="blog-post__description">{post.data.description}</p>
+          )
+        }
+      </header>
+
+      <div class="blog-prose">
+        <Content />
+      </div>
+    </article>
+
+    <button
+      aria-label="Back to top"
+      class="blog-post__top"
+      data-show="false"
+      id="to-top-btn"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        focusable="false"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4.5 15.75l7.5-7.5 7.5 7.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+    </button>
+
+    <div class="blog-post__divider" aria-hidden="true">
+      <span></span>
+      <i></i>
+      <span></span>
+    </div>
+  </div>
+
+  <script>
+    import "../../scripts/blog-to-top";
+  </script>
+</Layout>
+
+<style>
+  .blog-post-shell {
+    width: min(100ch, 100%);
+    margin: 0 auto;
+  }
+
+  .blog-post {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .blog-post__header {
+    margin: 0 0 1.55rem;
+  }
+
+  .blog-post__back {
+    display: inline-block;
+    margin-bottom: 2.35rem;
+    color: var(--color-primary);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  .blog-post__back:hover,
+  .blog-post__back:focus-visible {
+    color: var(--color-secondary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .blog-post__header h1 {
+    margin: 0;
+    color: var(--fg);
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 7vw, 3.4rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-post__meta {
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .blog-post__description {
+    max-width: 42rem;
+    margin: 1.15rem 0 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .blog-prose {
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    line-height: 1.75;
+  }
+
+  .blog-prose :global(*) {
+    overflow-wrap: break-word;
+  }
+
+  .blog-prose :global(p) {
+    margin: 1.05rem 0;
+    text-wrap: pretty;
+  }
+
+  .blog-prose :global(h1),
+  .blog-prose :global(h2),
+  .blog-prose :global(h3),
+  .blog-prose :global(h4),
+  .blog-prose :global(h5),
+  .blog-prose :global(h6) {
+    position: relative;
+    margin: 2.4rem 0 0.9rem;
+    color: var(--fg);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-prose :global(h2) {
+    font-size: 1.5em;
+    line-height: 1.3333333;
+  }
+
+  .blog-prose :global(h3) {
+    font-size: 1.25em;
+    line-height: 1.6;
+  }
+
+  .blog-prose :global(h4) {
+    font-size: 1em;
+    line-height: 1.5;
+  }
+
+  .blog-prose :global(a) {
+    border-bottom: 2px dotted rgba(var(--color-secondary-rgb), 0.68);
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition:
+      border-color 120ms ease,
+      color 120ms ease,
+      filter 120ms ease;
+  }
+
+  .blog-prose :global(a:hover),
+  .blog-prose :global(a:focus-visible) {
+    border-bottom-style: solid;
+    border-color: var(--color-secondary);
+    filter: brightness(1.08);
+  }
+
+  .blog-prose :global(blockquote) {
+    margin: 1.45rem 0;
+    border-left: 2px solid rgba(var(--color-secondary-rgb), 0.65);
+    color: var(--fg);
+    font-style: italic;
+    padding-left: 1.25rem;
+  }
+
+  .blog-prose :global(blockquote p) {
+    margin: 0.72rem 0;
+  }
+
+  .blog-prose :global(ul),
+  .blog-prose :global(ol) {
+    margin: 1.05rem 0;
+    padding-left: 1.6rem;
+  }
+
+  .blog-prose :global(ul) {
+    list-style: disc;
+  }
+
+  .blog-prose :global(ol) {
+    list-style: decimal;
+  }
+
+  .blog-prose :global(li) {
+    margin: 0.45rem 0;
+    padding-left: 0.15rem;
+  }
+
+  .blog-prose :global(code) {
+    border-radius: 4px;
+    background: rgba(var(--color-secondary-rgb), 0.12);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    font-weight: 600;
+    padding: 0.1rem 0.25rem;
+  }
+
+  .blog-prose :global(pre) {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid rgba(var(--color-primary-rgb), 0.1);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--fg);
+    margin: 1.45rem 0;
+    padding: 1.15rem;
+  }
+
+  .blog-prose :global(pre code) {
+    display: block;
+    overflow-wrap: normal;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    white-space: pre;
+  }
+
+  .blog-prose :global(hr) {
+    margin: 2rem 0;
+    border: 0;
+    border-top: 1px solid rgba(var(--color-secondary-rgb), 0.36);
+  }
+
+  .blog-prose :global(img) {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    border-radius: 8px;
+  }
+
+  .blog-prose :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1.65rem 0;
+    border-collapse: collapse;
+  }
+
+  .blog-prose :global(th),
+  .blog-prose :global(td) {
+    border-right: 1px solid rgba(var(--color-primary-rgb), 0.12);
+    border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.12);
+    padding: 0.55rem 0.8rem;
+    text-align: left;
+  }
+
+  .blog-prose :global(thead),
+  .blog-prose :global(tr:nth-child(even)) {
+    background: var(--surface);
+  }
+
+  .blog-post__top {
+    position: fixed;
+    right: 1rem;
+    bottom: 2rem;
+    z-index: 40;
+    display: flex;
+    width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(var(--color-primary-rgb), 0.16);
+    border-radius: 9999px;
+    background: var(--surface);
+    color: var(--fg);
+    opacity: 0;
+    transform: translateY(4rem);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease,
+      border-color 150ms ease;
+  }
+
+  .blog-post__top svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .blog-post__top[data-show="true"] {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .blog-post__top:hover,
+  .blog-post__top:focus-visible {
+    border-color: rgba(var(--color-secondary-rgb), 0.75);
+  }
+
+  .blog-post__divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 5rem;
+    color: var(--color-secondary);
+  }
+
+  .blog-post__divider span {
+    width: 4rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  .blog-post__divider i {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 9999px;
+    background: currentColor;
+  }
+
+  @media (max-width: 640px) {
+    .blog-post__header {
+      margin-bottom: 1.45rem;
+    }
+
+    .blog-post__header h1 {
+      font-size: clamp(2.05rem, 11vw, 2.55rem);
+      line-height: 1.08;
+    }
+
+    .blog-post__back {
+      margin-bottom: 1.8rem;
+      font-size: 1.12rem;
+    }
+
+    .blog-post__meta {
+      font-size: 0.76rem;
+    }
+
+    .blog-prose {
+      font-size: 1.13rem;
+      line-height: 1.64;
+    }
+
+    .blog-prose :global(h2) {
+      font-size: 1.75rem;
+    }
+
+    .blog-prose :global(pre) {
+      border-radius: 6px;
+      padding: 0.9rem;
+    }
+
+    .blog-post__divider {
+      margin-top: 3.5rem;
+    }
+
+    .blog-post__divider span {
+      width: 3rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .blog-post__header {
+      margin-bottom: 1.2rem;
+    }
+
+    .blog-post__header h1 {
+      font-size: clamp(1.85rem, 11vw, 2.25rem);
+    }
+
+    .blog-post__description {
+      font-size: 0.98rem;
+      line-height: 1.52;
+    }
+
+    .blog-prose {
+      font-size: 1.04rem;
+      line-height: 1.62;
+    }
+
+    .blog-prose :global(h1),
+    .blog-prose :global(h2),
+    .blog-prose :global(h3),
+    .blog-prose :global(h4),
+    .blog-prose :global(h5),
+    .blog-prose :global(h6) {
+      margin-top: 2rem;
+    }
+
+    .blog-prose :global(h2) {
+      font-size: 1.45rem;
+    }
+
+    .blog-prose :global(h3) {
+      font-size: 1.22rem;
+      line-height: 1.35;
+    }
+
+    .blog-prose :global(blockquote) {
+      padding-left: 0.85rem;
+    }
+
+    .blog-prose :global(ul),
+    .blog-prose :global(ol) {
+      padding-left: 1.25rem;
+    }
+
+    .blog-prose :global(pre) {
+      margin: 1.2rem 0;
+      padding: 0.8rem;
+    }
+
+    .blog-prose :global(table) {
+      font-size: 0.9rem;
+    }
+
+    .blog-post__top {
+      right: 0.75rem;
+      bottom: 1.25rem;
+    }
+
+    .blog-post__divider span {
+      width: 2.35rem;
+    }
+  }
+</style>

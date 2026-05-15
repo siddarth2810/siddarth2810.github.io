@@ -1,51 +1,74 @@
 [
   {
     "id": 1,
+    "slug": "askmydoc",
     "title": "AskMyDoc",
-    "description": "AI‑driven PDF QA assistant that gives contextually relevant answers",
-    "tech": ["LangChain", "FAISS", "Next.js", "FastAPI", "Gen AI"],
-    "link":  "https://github.com/siddarth2810/AskMyDoc_v2"
+    "description": "RAG-based PDF question-answering assistant.",
+    "tech": ["FastAPI", "Next.js", "FAISS", "OpenAI Embeddings"],
+    "badges": ["AI Tool", "Document QA"],
+    "link": "https://github.com/siddarth2810/AskMyDoc_v2"
   },
   {
     "id": 2,
+    "slug": "naash",
     "title": "NAASH",
-    "description": "AI-powered terminal shell that improves speed and efficiency through natural language interaction",
-    "tech": ["TypeScript", "Bash"],
-    "link":  "https://github.com/Sushants-Git/naash"
+    "description": "AI-powered terminal shell for developer workflows.",
+    "tech": ["TypeScript", "Gemini API", "Azure OpenAI"],
+    "badges": ["Developer Tool", "Terminal"],
+    "link": "https://github.com/Sushants-Git/naash"
   },
   {
-    "id":3,
-    "title": "HTTP server",
-    "description": "A http server built from scratch to understand the internals of HTTP protocol",
+    "id": 3,
+    "slug": "http-server",
+    "title": "HTTP Server",
+    "description": "HTTP server built from scratch in Go.",
     "tech": ["Go", "Bash"],
-    "link":  "https://github.com/siddarth2810/http-server"
+    "badges": ["Backend", "Protocols"],
+    "link": "https://github.com/siddarth2810/http-server"
   },
   {
-    "id":4,
-    "title": "Knot",
-    "description": "A browser extension to save your readings and use OpenClaw to draft an online post",
-    "tech": ["JavaScript", "OpenClaw"],
-    "link":  "https://github.com/siddarth2810/Knot"
+    "id": 4,
+    "slug": "compiler",
+    "title": "Compiler",
+    "description": "Small compiler built to learn language internals.",
+    "tech": ["Rust", "GCC", "Bash", "Linux"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/rust-compiler"
   },
   {
-    "id":5,
-    "title": "Blast Box",
-    "description": "A real‑time multiplayer shooting game inspired by diep.io.",
-    "tech": ["uWebSockets", "p5.js", "Azure"],
-    "link":  "https://github.com/siddarth2810/blast-box"
+    "id": 5,
+    "slug": "2D Game",
+    "title": "Blast-box",
+    "description": "A real-time multiplayer game inspired from the game diep.io.",
+    "tech": ["JavaScript", "Web Sockets"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/blast-box"
   },
   {
     "id": 6,
-    "title": "Compiler",
-    "description": "Built a small compiler to understand more about Compiler theory",
-    "tech": ["Rust", "GCC", "Bash", "Linux"],
-    "link":  "https://github.com/siddarth2810/rust-compiler"
+    "slug": "AI",
+    "title": "Knot",
+    "description": "A browser to save your readings and use OpenClaw to draft an online post",
+    "tech": ["OpenClaw", "JavaScript"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/Knot"
   },
   {
     "id": 7,
+    "slug": "DevOps",
+    "title": "Daily Planner",
+    "description": "A simple Daily Planner deployed on Kubernetes cluster",
+    "tech": ["Kubernetes", "BuildSafe", "Azure"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/devops-project-cloned"
+  },
+  {
+    "id": 8,
+    "slug": "AI",
     "title": "SiteKick",
-    "description": "Generate and deploy full websites from simple prompts via WhatsApp.",
-    "tech": ["TypeScript", "LLMs"],
-    "link":  "https://github.com/aifambience/SiteKick"
+    "description": "Generate and deploy full websites from prompts using WhatsApp",
+    "tech": ["Vercel SDK", "TypeScript"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/aifambience/SiteKick"
   }
 ]

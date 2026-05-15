@@ -30,8 +30,12 @@ export async function getCommunityImages(): Promise<CommunityImage[]> {
 
     return entries
       .filter((entry) => entry.isFile())
-      .filter((entry) => IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+      .filter((entry) =>
+        IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()),
+      )
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { numeric: true }),
+      )
       .map((entry) => ({
         src: `/community/${entry.name}`,
         alt: toAltText(entry.name) || "Community image",
