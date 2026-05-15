@@ -28,7 +28,7 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
       Siddarth Gundu
     </h1>
     <div class="flex items-center gap-1.5 font-normal tracking-tight"></div>
-    <p class="pt-4 text-sm">
+    <p class="about-copy about-copy--lead">
       Hi there, I'm a software engineer from <span class="text-title">
         Hyderabad, India
       </span>. I work on backend infrastructure, observability, and open-source
@@ -43,7 +43,7 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
       </a>
       the Linux kernel, and built observability infrastructure at Tower Cloud.
     </p>
-    <p class="text-sm">
+    <p class="about-copy">
       I run a Ubuntu setup with i3, check out my
       <a
         href="https://github.com/siddarth2810/.dotfiles"
@@ -55,20 +55,18 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
       </a>
       :)
     </p>
-    <div
-      class="socials grid w-fit grid-cols-3 gap-2 pt-2 tracking-tight md:flex md:flex-row md:items-start"
-    >
+    <div class="socials">
       {
         socials.map((social) => (
           <a
             href={social.url}
             target={social.target}
             rel={social.target === "_blank" ? "noopener noreferrer" : undefined}
-            class="group md:hover:text-primary flex items-center underline-offset-4 transition duration-150 ease-in-out md:hover:underline"
+            class="socials__link group"
           >
-            <Icon name={social.icon} size={14} class="mr-1.5" />
-            <span class="text-sm">{social.name}</span>
-            <RiArrowRightUpLine className="opacity-0 transition-opacity duration-150 md:group-hover:opacity-100" />
+            <Icon name={social.icon} class="socials__icon" />
+            <span class="socials__label">{social.name}</span>
+            <RiArrowRightUpLine className="socials__arrow" aria-hidden="true" />
           </a>
         ))
       }
