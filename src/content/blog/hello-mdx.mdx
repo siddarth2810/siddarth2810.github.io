@@ -1,0 +1,1861 @@
+---
+title: "Hello MDX"
+description: "A starter post for the local writing section."
+pubDate: 2026-05-08
+tags: ["meta", "writing"]
+draft: false
+---
+
+Below is a full publishable draft you can use as your base. I wrote it in a “teach from first principles” style, with code exercises that build up to Cortex-style cache patterns.
+
+---
+
+# Cache Implementations in Cortex: From First Principles to Production Patterns
+
+When I first started looking at cache implementations in Cortex, I thought a cache was just:
+
+```text
+key -> value
+```
+
+Maybe a map. Maybe Redis. Maybe Memcached.
+
+But once you touch a real production-grade distributed system like Cortex, that simple picture explodes into many questions:
+
+```text
+Where is the cache stored?
+Is it local to one process or shared across replicas?
+What is the key?
+What is the value format?
+Is the value a Go object or bytes?
+Can cache failure break a query?
+Can two tenants accidentally share cached data?
+What happens when many goroutines miss the same key at once?
+What happens when a cached value is corrupt?
+What does “cache disabled” actually mean in Go?
+```
+
+This blog is my attempt to explain Cortex cache implementations from first principles.
+
+We will start with a toy cache, then build up to production patterns used in Cortex: in-memory caches, Memcached/Redis-backed caches, bucket caches, typed adapters over byte caches, singleflight-style in-flight deduplication, no-op caches, and Parquet row-range caching.
+
+Cortex itself is a horizontally scalable, highly available, multi-tenant long-term storage system for Prometheus and OpenTelemetry metrics. Its read path involves components like queriers and store-gateways, and its store-gateway is responsible for querying series from blocks in long-term object storage. ([GitHub][1])
+
+---
+
+# 1. The first-principles cache
+
+The simplest cache is:
+
+```go
+package main
+
+type Cache struct {
+	data map[string]string
+}
+
+func NewCache() *Cache {
+	return &Cache{
+		data: map[string]string{},
+	}
+}
+
+func (c *Cache) Get(key string) (string, bool) {
+	v, ok := c.data[key]
+	return v, ok
+}
+
+func (c *Cache) Set(key string, value string) {
+	c.data[key] = value
+}
+```
+
+Usage:
+
+```go
+cache := NewCache()
+
+if value, ok := cache.Get("user:1"); ok {
+	fmt.Println("cache hit", value)
+	return
+}
+
+value := "Sushant"
+cache.Set("user:1", value)
+```
+
+This teaches the core idea:
+
+```text
+cache hit  -> reuse previous result
+cache miss -> compute result, store it, return it
+```
+
+But this cache is not production-grade.
+
+It has no:
+
+```text
+TTL
+eviction
+concurrency safety
+metrics
+serialization
+tenant isolation
+bounded memory
+distributed sharing
+failure behavior
+```
+
+Cortex needs all of those.
+
+---
+
+# 2. Cache backend vs cache adapter
+
+This distinction is the first big thing to understand.
+
+A **cache backend** is where the bytes live.
+
+Examples:
+
+```text
+in-memory map / LRU
+Memcached
+Redis
+multi-level cache
+```
+
+A **cache adapter** knows what those bytes mean.
+
+Example:
+
+```text
+row ranges cache:
+  key   = tenant + shard + row group + constraints
+  value = []search.RowRange encoded into []byte
+```
+
+The backend does not understand `RowRange`.
+
+It only understands:
+
+```go
+Store(key, []byte)
+Fetch(key) []byte
+```
+
+The adapter understands:
+
+```go
+[]search.RowRange <-> []byte
+```
+
+This is the production pattern:
+
+```text
+typed cache adapter
+    ↓
+generic byte cache backend
+    ↓
+in-memory / memcached / redis / multilevel storage
+```
+
+Cortex’s bucket cache backend configuration supports backends such as `inmemory`, `memcached`, and `redis`; its store-gateway documentation also describes index, chunks, and metadata caches, and says caching is optional but highly recommended in production. ([Cortex][2])
+
+---
+
+# 3. In-memory cache
+
+An in-memory cache lives inside one process.
+
+Example:
+
+```go
+type InMemoryCache struct {
+	mu   sync.RWMutex
+	data map[string][]byte
+}
+
+func NewInMemoryCache() *InMemoryCache {
+	return &InMemoryCache{
+		data: map[string][]byte{},
+	}
+}
+
+func (c *InMemoryCache) Store(key string, value []byte) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.data[key] = append([]byte(nil), value...)
+}
+
+func (c *InMemoryCache) Fetch(key string) ([]byte, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	v, ok := c.data[key]
+	if !ok {
+		return nil, false
+	}
+
+	return append([]byte(nil), v...), true
+}
+```
+
+Why copy the bytes?
+
+Because without copying, caller code can mutate the same slice after storing it. Real cache backends like Redis and Memcached naturally serialize data across a boundary, so a good fake in-memory cache should imitate that behavior.
+
+In-memory cache:
+
+```text
+fast
+simple
+no network
+not shared across replicas
+uses process memory
+can contribute to OOM if unbounded
+```
+
+If Cortex has 10 querier replicas and each has its own in-memory cache, then a cache entry computed in querier-1 is not available in querier-2.
+
+---
+
+# 4. Memcached / Redis cache
+
+A shared cache lives outside the Cortex process.
+
+Mental model:
+
+```text
+querier-1 ─┐
+querier-2 ─┼──> memcached / redis
+querier-3 ─┘
+```
+
+Now one replica can compute and store a result, and other replicas can reuse it.
+
+Shared cache:
+
+```text
+shared across replicas
+can reduce object-store reads across the whole cluster
+uses network
+needs serialization
+can fail independently
+```
+
+This is why production Cortex deployments often care about external cache backends. The Cortex store-gateway docs list in-memory, Memcached, and Redis cache backends for store-gateway caches. ([Cortex][2])
+
+---
+
+# 5. TTL and eviction
+
+A production cache cannot grow forever.
+
+Add TTL:
+
+```go
+type entry struct {
+	value     []byte
+	expiresAt time.Time
+}
+
+type TTLCache struct {
+	mu   sync.RWMutex
+	data map[string]entry
+	ttl  time.Duration
+}
+
+func NewTTLCache(ttl time.Duration) *TTLCache {
+	return &TTLCache{
+		data: map[string]entry{},
+		ttl:  ttl,
+	}
+}
+
+func (c *TTLCache) Store(key string, value []byte) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.data[key] = entry{
+		value:     append([]byte(nil), value...),
+		expiresAt: time.Now().Add(c.ttl),
+	}
+}
+
+func (c *TTLCache) Fetch(key string) ([]byte, bool) {
+	c.mu.RLock()
+	e, ok := c.data[key]
+	c.mu.RUnlock()
+
+	if !ok {
+		return nil, false
+	}
+
+	if time.Now().After(e.expiresAt) {
+		c.mu.Lock()
+		delete(c.data, key)
+		c.mu.Unlock()
+		return nil, false
+	}
+
+	return append([]byte(nil), e.value...), true
+}
+```
+
+TTL answers:
+
+```text
+How long is this cached value valid?
+```
+
+Eviction answers:
+
+```text
+What do we delete when the cache is full?
+```
+
+Common strategies:
+
+```text
+FIFO  -> evict oldest inserted entry
+LRU   -> evict least recently used entry
+TTL   -> evict expired entries
+size  -> evict until cache is below max bytes/items
+```
+
+In Cortex, different caches have different knobs because metadata, chunks, postings, and Parquet row ranges have different lifetimes and sizes.
+
+---
+
+# 6. Cache as an optimization, not correctness
+
+This is one of the most important production rules.
+
+A cache should usually behave like this:
+
+```text
+cache hit     -> use cache
+cache miss    -> compute normally
+cache corrupt -> treat as miss
+cache down    -> compute normally
+store failed  -> return original result anyway
+```
+
+In other words:
+
+```text
+cache failure should not break queries
+```
+
+Example:
+
+```go
+func GetOrCompute(ctx context.Context, cache Cache, key string, compute func() ([]byte, error)) ([]byte, error) {
+	if cached, ok := cache.Fetch(ctx, key); ok {
+		return cached, nil
+	}
+
+	value, err := compute()
+	if err != nil {
+		return nil, err
+	}
+
+	// Store failure should usually not fail the request.
+	cache.Store(ctx, key, value)
+
+	return value, nil
+}
+```
+
+This is especially important with Memcached and Redis. They are external systems and may be unavailable.
+
+---
+
+# 7. Metrics: hits, misses, errors
+
+A production cache without metrics is almost useless.
+
+Minimum metrics:
+
+```text
+cache_requests_total
+cache_hits_total
+cache_misses_total
+cache_store_errors_total
+cache_decode_errors_total
+cache_items
+cache_bytes
+cache_evictions_total
+```
+
+Example:
+
+```go
+type CacheMetrics struct {
+	hits   prometheus.Counter
+	misses prometheus.Counter
+	errors prometheus.Counter
+}
+```
+
+Why metrics matter:
+
+```text
+High miss rate     -> cache keys may be too specific
+High decode errors -> incompatible or corrupt cache entries
+High evictions     -> cache too small
+No hits at all     -> cache may be recreated per request
+```
+
+That last one is a very real bug.
+
+Bad:
+
+```go
+func HandleQuery(ctx context.Context) {
+	cache := NewCache() // new empty cache every request
+	...
+}
+```
+
+Good:
+
+```go
+var cache = NewCache() // component lifetime
+
+func HandleQuery(ctx context.Context) {
+	...
+}
+```
+
+---
+
+# 8. No-op cache
+
+One very clean Go pattern is a no-op cache.
+
+Instead of returning `nil` when caching is disabled, return an implementation that does nothing.
+
+```go
+type Cache interface {
+	Get(key string) ([]byte, bool)
+	Set(key string, value []byte)
+}
+
+type NoopCache struct{}
+
+func (NoopCache) Get(key string) ([]byte, bool) {
+	return nil, false
+}
+
+func (NoopCache) Set(key string, value []byte) {}
+```
+
+Then callers do not need:
+
+```go
+if cache != nil {
+	...
+}
+```
+
+They can simply call:
+
+```go
+value, ok := cache.Get(key)
+```
+
+This avoids nil checks and typed-nil interface bugs.
+
+In Go, an interface internally behaves like a pair of concrete type and value. A nil pointer stored inside an interface can produce a non-nil interface value, which is why production Go code often prefers no-op implementations or careful interface assignment.
+
+---
+
+# 9. Typed nil interface bug
+
+This is a Go-specific cache bug you will hit eventually.
+
+```go
+type Cache interface {
+	Get() string
+}
+
+type RealCache struct{}
+
+func (r *RealCache) Get() string {
+	return "hello"
+}
+
+func NewCache(enabled bool) *RealCache {
+	if !enabled {
+		return nil
+	}
+	return &RealCache{}
+}
+
+func main() {
+	c := NewCache(false)
+
+	var iface Cache = c
+
+	fmt.Println(c == nil)     // true
+	fmt.Println(iface == nil) // false
+}
+```
+
+Why?
+
+Because the interface contains:
+
+```text
+(type=*RealCache, value=nil)
+```
+
+not:
+
+```text
+(type=nil, value=nil)
+```
+
+So this pattern is safer:
+
+```go
+var c Cache
+
+if enabled {
+	c = NewCache(true)
+}
+```
+
+If disabled, `c` remains a true nil interface.
+
+Even better:
+
+```go
+func NewCache(enabled bool) Cache {
+	if !enabled {
+		return NoopCache{}
+	}
+	return &RealCache{}
+}
+```
+
+---
+
+# 10. Singleflight: cache misses happening at the same time
+
+A cache prevents repeated work over time.
+
+Singleflight prevents repeated work **at the same time**.
+
+Imagine 100 queries ask for the same expensive key simultaneously.
+
+Without singleflight:
+
+```text
+goroutine 1   cache miss -> compute
+goroutine 2   cache miss -> compute
+goroutine 3   cache miss -> compute
+...
+goroutine 100 cache miss -> compute
+```
+
+With singleflight:
+
+```text
+goroutine 1   cache miss -> compute
+goroutine 2   same key -> wait for goroutine 1
+goroutine 3   same key -> wait for goroutine 1
+...
+goroutine 100 same key -> wait for goroutine 1
+```
+
+Simple implementation:
+
+```go
+type call struct {
+	done chan struct{}
+	val  []byte
+	err  error
+}
+
+type SingleFlight struct {
+	mu    sync.Mutex
+	calls map[string]*call
+}
+
+func NewSingleFlight() *SingleFlight {
+	return &SingleFlight{
+		calls: map[string]*call{},
+	}
+}
+
+func (g *SingleFlight) Do(key string, fn func() ([]byte, error)) ([]byte, error, bool) {
+	g.mu.Lock()
+
+	if c, ok := g.calls[key]; ok {
+		g.mu.Unlock()
+		<-c.done
+		return c.val, c.err, true
+	}
+
+	c := &call{done: make(chan struct{})}
+	g.calls[key] = c
+	g.mu.Unlock()
+
+	c.val, c.err = fn()
+
+	close(c.done)
+
+	g.mu.Lock()
+	delete(g.calls, key)
+	g.mu.Unlock()
+
+	return c.val, c.err, false
+}
+```
+
+Usage:
+
+```go
+v, err, shared := group.Do(key, func() ([]byte, error) {
+	return expensiveFetch()
+})
+```
+
+This tells you:
+
+```text
+shared=false -> this goroutine did the work
+shared=true  -> this goroutine waited for another goroutine
+```
+
+---
+
+# 11. Cache + singleflight together
+
+Now combine them:
+
+```go
+func GetCachedOrCompute(
+	ctx context.Context,
+	cache Cache,
+	group *SingleFlight,
+	key string,
+	compute func() ([]byte, error),
+) ([]byte, error) {
+	if v, ok := cache.Fetch(ctx, key); ok {
+		return v, nil
+	}
+
+	v, err, _ := group.Do(key, func() ([]byte, error) {
+		// Check cache again inside singleflight.
+		// Another goroutine may have filled it while we waited.
+		if v, ok := cache.Fetch(ctx, key); ok {
+			return v, nil
+		}
+
+		v, err := compute()
+		if err != nil {
+			return nil, err
+		}
+
+		cache.Store(ctx, key, v)
+		return v, nil
+	})
+
+	return v, err
+}
+```
+
+The second cache check is important.
+
+Timeline:
+
+```text
+goroutine A misses, starts compute
+goroutine B waits
+goroutine A stores cache
+goroutine C arrives just after store
+```
+
+You want all later goroutines to see the cached value.
+
+---
+
+# 12. Cortex cache taxonomy
+
+Cortex has several cache families. The important ones for blocks storage are:
+
+```text
+index cache
+chunks cache
+metadata cache
+parquet labels cache
+expanded postings cache
+parquet shard cache
+proposed parquet row-ranges cache
+```
+
+The Cortex store-gateway docs describe index, chunks, and metadata caches and recommend caching in production. ([Cortex][2])
+
+The Cortex code also defines bucket cache backends such as:
+
+```go
+const (
+	CacheBackendMemcached = "memcached"
+	CacheBackendRedis     = "redis"
+	CacheBackendInMemory  = "inmemory"
+)
+```
+
+and builds cache backends from config in `pkg/storage/tsdb/caching_bucket.go`. ([GitHub][3])
+
+Let’s understand the families conceptually.
+
+---
+
+# 13. Index cache
+
+The store-gateway reads TSDB block indexes.
+
+Index data includes things like:
+
+```text
+postings
+series
+expanded postings
+```
+
+A postings list is roughly:
+
+```text
+for label matcher job="api", which series IDs match?
+```
+
+Index cache avoids repeatedly reading and decoding index data from object storage.
+
+Mental model:
+
+```text
+label matcher / series reference
+    ↓
+index lookup
+    ↓
+postings / series data
+```
+
+Cache key might include:
+
+```text
+tenant
+block ID
+label name
+label value
+series ref
+```
+
+The value is usually encoded bytes.
+
+---
+
+# 14. Chunks cache
+
+Chunks contain compressed sample data.
+
+A query eventually needs actual samples:
+
+```text
+timestamp -> value
+```
+
+Chunk cache avoids repeatedly fetching the same object-store byte ranges.
+
+Mental model:
+
+```text
+object path + byte range -> bytes
+```
+
+This is naturally a byte cache.
+
+Cortex’s bucket caching code configures range caching for chunk files and Parquet chunk files. ([GitHub][3])
+
+---
+
+# 15. Metadata cache
+
+Metadata cache stores things like:
+
+```text
+block metadata
+bucket index
+tenant block lists
+object attributes
+existence checks
+```
+
+These are not query samples. They are control-plane/object-store metadata.
+
+Mental model:
+
+```text
+list tenants
+list blocks
+does meta.json exist?
+read meta.json
+read bucket index
+```
+
+Caching metadata reduces object-store list/get calls.
+
+---
+
+# 16. Parquet labels cache
+
+Parquet mode introduces Parquet files for Prometheus time series data. The `prometheus-community/parquet-common` project describes itself as a shared library for storing and querying Prometheus time series data in Parquet, including object-store-oriented long-term storage and columnar compression. ([GitHub][4])
+
+Cortex’s bucket caching code has a `ParquetLabelsCacheConfig` and caches ranges for `labels.parquet`-style files. ([GitHub][3])
+
+Mental model:
+
+```text
+parquet labels file path + byte range -> bytes
+```
+
+This is still object-store byte-range caching.
+
+---
+
+# 17. Parquet shard cache
+
+A Parquet shard cache is different.
+
+It does not cache bytes fetched from object storage. It caches an opened Go object representing a Parquet shard.
+
+Toy version:
+
+```go
+type ParquetShardCache struct {
+	mu    sync.RWMutex
+	cache map[string]*ParquetShard
+}
+
+func (c *ParquetShardCache) Get(path string) *ParquetShard {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.cache[path]
+}
+
+func (c *ParquetShardCache) Set(path string, shard *ParquetShard) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.cache[path] = shard
+}
+```
+
+This kind of cache must be local in-process because an opened reader/file object cannot be serialized into Memcached.
+
+So:
+
+```text
+Parquet shard cache:
+  stores Go objects
+  local only
+  in-process
+```
+
+Whereas:
+
+```text
+row-ranges cache:
+  stores []RowRange as bytes
+  can use in-memory / memcached / redis
+```
+
+That difference matters.
+
+---
+
+# 18. Expanded postings cache
+
+Expanded postings cache is a more advanced pattern.
+
+It does not just store bytes.
+
+It wraps an expensive operation:
+
+```text
+PostingsForMatchers(...)
+    ↓
+ExpandPostings(...)
+    ↓
+[]SeriesRef
+```
+
+It can also deduplicate in-flight work using a promise/singleflight-like structure.
+
+Mental model:
+
+```text
+key = tenant + block + matchers
+value = expanded postings list
+```
+
+But unlike a simple cache, the expanded postings cache owns the computation:
+
+```go
+PostingsForMatchers(ctx, blockID, indexReader, matchers...)
+```
+
+That means it can do:
+
+```text
+if cached -> return cached
+if in-flight -> wait
+if missing -> compute + store
+```
+
+This is why expanded postings cache code tends to look more complicated than a simple `Get/Set` adapter.
+
+---
+
+# 19. Parquet row-ranges cache
+
+Now let’s build the pattern that maps to the Parquet row-range constraint cache.
+
+In Parquet query flow, constraints are derived from label matchers.
+
+Example PromQL:
+
+```promql
+http_requests_total{job="api", zone="us-east"}
+```
+
+Conceptually becomes constraints:
+
+```text
+l___name__ == "http_requests_total"
+l_job      == "api"
+l_zone     == "us-east"
+```
+
+A Parquet row group contains many rows.
+
+Filtering returns row ranges:
+
+```go
+[]RowRange{
+	{From: 10, Count: 5},
+	{From: 40, Count: 2},
+}
+```
+
+Meaning:
+
+```text
+rows 10..14 matched
+rows 40..41 matched
+```
+
+The cache key should include:
+
+```text
+tenant
+shard
+row group index
+constraints
+```
+
+The value is:
+
+```go
+[]RowRange
+```
+
+But the backend stores:
+
+```go
+[]byte
+```
+
+So we need a typed adapter.
+
+---
+
+# 20. Building a row-ranges cache adapter
+
+First define row ranges:
+
+```go
+type RowRange struct {
+	From  int64
+	Count int64
+}
+```
+
+Define a backend interface:
+
+```go
+type ByteCache interface {
+	Store(ctx context.Context, data map[string][]byte, ttl time.Duration)
+	Fetch(ctx context.Context, keys []string) map[string][]byte
+	Name() string
+}
+```
+
+Now the typed adapter:
+
+```go
+type RowRangesCache struct {
+	backend ByteCache
+	ttl     time.Duration
+	name    string
+}
+
+func NewRowRangesCache(backend ByteCache, name string, ttl time.Duration) *RowRangesCache {
+	if backend == nil {
+		return nil
+	}
+
+	return &RowRangesCache{
+		backend: backend,
+		name:    name,
+		ttl:     ttl,
+	}
+}
+```
+
+Get:
+
+```go
+func (c *RowRangesCache) Get(ctx context.Context, key string) ([]RowRange, bool) {
+	hits := c.backend.Fetch(ctx, []string{key})
+
+	buf, ok := hits[key]
+	if !ok {
+		return nil, false
+	}
+
+	rowRanges, err := decodeRowRanges(buf)
+	if err != nil {
+		// Cache data is corrupt or incompatible.
+		// Treat as miss.
+		return nil, false
+	}
+
+	return rowRanges, true
+}
+```
+
+Set:
+
+```go
+func (c *RowRangesCache) Set(ctx context.Context, key string, rowRanges []RowRange) error {
+	buf, err := encodeRowRanges(rowRanges)
+	if err != nil {
+		return err
+	}
+
+	c.backend.Store(ctx, map[string][]byte{
+		key: buf,
+	}, c.ttl)
+
+	return nil
+}
+```
+
+---
+
+# 21. Encoding row ranges
+
+Cache backends store bytes. We need:
+
+```text
+[]RowRange -> []byte
+[]byte     -> []RowRange
+```
+
+A simple binary format:
+
+```text
+1 byte  version
+4 bytes number of row ranges
+
+for each row range:
+  8 bytes From
+  8 bytes Count
+```
+
+Implementation:
+
+```go
+const (
+	rowRangesValueVersion byte = 1
+
+	rowRangesHeaderSize = 5  // 1 byte version + 4 bytes count
+	rowRangeEntrySize   = 16 // int64 From + int64 Count
+)
+
+func encodeRowRanges(rowRanges []RowRange) ([]byte, error) {
+	if len(rowRanges) > math.MaxUint32 {
+		return nil, fmt.Errorf("too many row ranges: %d", len(rowRanges))
+	}
+
+	buf := make([]byte, rowRangesHeaderSize+len(rowRanges)*rowRangeEntrySize)
+
+	buf[0] = rowRangesValueVersion
+	binary.LittleEndian.PutUint32(buf[1:5], uint32(len(rowRanges)))
+
+	offset := rowRangesHeaderSize
+
+	for _, rr := range rowRanges {
+		if rr.From < 0 {
+			return nil, fmt.Errorf("negative From: %d", rr.From)
+		}
+
+		if rr.Count < 0 {
+			return nil, fmt.Errorf("negative Count: %d", rr.Count)
+		}
+
+		binary.LittleEndian.PutUint64(buf[offset:offset+8], uint64(rr.From))
+		binary.LittleEndian.PutUint64(buf[offset+8:offset+16], uint64(rr.Count))
+
+		offset += rowRangeEntrySize
+	}
+
+	return buf, nil
+}
+```
+
+Decode:
+
+```go
+func decodeRowRanges(buf []byte) ([]RowRange, error) {
+	if len(buf) < rowRangesHeaderSize {
+		return nil, fmt.Errorf("invalid row ranges cache entry: got %d bytes, expected at least %d", len(buf), rowRangesHeaderSize)
+	}
+
+	if buf[0] != rowRangesValueVersion {
+		return nil, fmt.Errorf("unsupported row ranges cache value version: %d", buf[0])
+	}
+
+	count := binary.LittleEndian.Uint32(buf[1:5])
+
+	expectedSize := rowRangesHeaderSize + int(count)*rowRangeEntrySize
+	if len(buf) != expectedSize {
+		return nil, fmt.Errorf("invalid row ranges cache entry: got %d bytes, expected %d", len(buf), expectedSize)
+	}
+
+	rowRanges := make([]RowRange, int(count))
+
+	offset := rowRangesHeaderSize
+
+	for i := range rowRanges {
+		from := binary.LittleEndian.Uint64(buf[offset : offset+8])
+		count := binary.LittleEndian.Uint64(buf[offset+8 : offset+16])
+
+		if from > uint64(math.MaxInt64) {
+			return nil, fmt.Errorf("From overflows int64: %d", from)
+		}
+
+		if count > uint64(math.MaxInt64) {
+			return nil, fmt.Errorf("Count overflows int64: %d", count)
+		}
+
+		rowRanges[i] = RowRange{
+			From:  int64(from),
+			Count: int64(count),
+		}
+
+		offset += rowRangeEntrySize
+	}
+
+	return rowRanges, nil
+}
+```
+
+---
+
+# 22. Understanding `offset`
+
+The encoded buffer layout:
+
+```text
+byte 0      = version
+bytes 1..4  = number of row ranges
+
+bytes 5..12  = row range 0 From
+bytes 13..20 = row range 0 Count
+
+bytes 21..28 = row range 1 From
+bytes 29..36 = row range 1 Count
+```
+
+`offset` means:
+
+```text
+where am I currently reading/writing in the byte buffer?
+```
+
+So:
+
+```go
+offset := rowRangesHeaderSize
+```
+
+means:
+
+```text
+skip the header
+start reading row range entries
+```
+
+Then after each row range:
+
+```go
+offset += rowRangeEntrySize
+```
+
+means:
+
+```text
+move to the next row range entry
+```
+
+---
+
+# 23. Tests for the codec
+
+These tests are the proof.
+
+```go
+func TestEncodeDecodeRowRanges(t *testing.T) {
+	input := []RowRange{
+		{From: 20, Count: 9},
+		{From: 80, Count: 3},
+	}
+
+	buf, err := encodeRowRanges(input)
+	require.NoError(t, err)
+
+	output, err := decodeRowRanges(buf)
+	require.NoError(t, err)
+
+	require.Equal(t, input, output)
+}
+```
+
+Byte layout test:
+
+```go
+func TestEncodeRowRangesByteLayout(t *testing.T) {
+	buf, err := encodeRowRanges([]RowRange{
+		{From: 20, Count: 9},
+	})
+	require.NoError(t, err)
+
+	require.Len(t, buf, 21)
+
+	require.Equal(t, byte(1), buf[0])
+	require.Equal(t, uint32(1), binary.LittleEndian.Uint32(buf[1:5]))
+	require.Equal(t, uint64(20), binary.LittleEndian.Uint64(buf[5:13]))
+	require.Equal(t, uint64(9), binary.LittleEndian.Uint64(buf[13:21]))
+}
+```
+
+Invalid tests:
+
+```go
+func TestDecodeRowRangesRejectsShortPayload(t *testing.T) {
+	_, err := decodeRowRanges([]byte{1, 0})
+	require.Error(t, err)
+}
+
+func TestDecodeRowRangesRejectsBadVersion(t *testing.T) {
+	buf := make([]byte, rowRangesHeaderSize)
+	buf[0] = 99
+
+	_, err := decodeRowRanges(buf)
+	require.Error(t, err)
+}
+
+func TestDecodeRowRangesRejectsTrailingBytes(t *testing.T) {
+	buf, err := encodeRowRanges([]RowRange{{From: 1, Count: 2}})
+	require.NoError(t, err)
+
+	buf = append(buf, 99)
+
+	_, err = decodeRowRanges(buf)
+	require.Error(t, err)
+}
+```
+
+These tests matter because cache data is not trusted.
+
+---
+
+# 24. Building safe cache keys
+
+Bad key:
+
+```go
+key := strings.Join([]string{
+	tenantID,
+	shardName,
+	rowGroupIndex,
+	constraint.String(),
+}, ":")
+```
+
+Why bad?
+
+```text
+raw constraints can be long
+raw constraints can contain separators
+raw constraints can contain whitespace
+Memcached keys have practical limits
+```
+
+Better:
+
+```go
+func rowRangesCacheKey(tenantID, shardName string, shardIdx int, rowGroupIdx int, constraints []string) string {
+	logical := logicalRowRangesCacheKey(tenantID, shardName, shardIdx, rowGroupIdx, constraints)
+
+	sum := sha256.Sum256([]byte(logical))
+
+	return "parquet-row-ranges:v1:" + hex.EncodeToString(sum[:])
+}
+```
+
+Length-delimited logical key:
+
+```go
+func logicalRowRangesCacheKey(
+	tenantID string,
+	shardName string,
+	shardIdx int,
+	rowGroupIdx int,
+	constraints []string,
+) string {
+	var b strings.Builder
+
+	writePart(&b, tenantID)
+	writePart(&b, shardName)
+	writePart(&b, strconv.Itoa(shardIdx))
+	writePart(&b, strconv.Itoa(rowGroupIdx))
+
+	for _, c := range constraints {
+		writePart(&b, c)
+	}
+
+	return b.String()
+}
+
+func writePart(b *strings.Builder, s string) {
+	b.WriteString(strconv.Itoa(len(s)))
+	b.WriteByte(':')
+	b.WriteString(s)
+	b.WriteByte('|')
+}
+```
+
+This gives you:
+
+```text
+human-reasonable logical key
+safe hashed backend key
+```
+
+The key should include tenant ID because Cortex is multi-tenant. Tenant isolation is not optional.
+
+---
+
+# 25. Tests for cache keys
+
+```go
+func TestRowRangesCacheKeyDeterministic(t *testing.T) {
+	k1 := rowRangesCacheKey("tenant-a", "block-01/labels.parquet", 0, 5, []string{
+		`equal("l_job","api")`,
+	})
+
+	k2 := rowRangesCacheKey("tenant-a", "block-01/labels.parquet", 0, 5, []string{
+		`equal("l_job","api")`,
+	})
+
+	require.Equal(t, k1, k2)
+}
+```
+
+Different tenant:
+
+```go
+func TestRowRangesCacheKeyIncludesTenant(t *testing.T) {
+	k1 := rowRangesCacheKey("tenant-a", "block-01/labels.parquet", 0, 5, []string{
+		`equal("l_job","api")`,
+	})
+
+	k2 := rowRangesCacheKey("tenant-b", "block-01/labels.parquet", 0, 5, []string{
+		`equal("l_job","api")`,
+	})
+
+	require.NotEqual(t, k1, k2)
+}
+```
+
+Backend safety:
+
+```go
+func TestRowRangesCacheKeySafeForBackend(t *testing.T) {
+	key := rowRangesCacheKey("tenant-a", "block-01/labels.parquet", 0, 5, []string{
+		`equal("l_job","api with spaces and : colons")`,
+	})
+
+	require.True(t, strings.HasPrefix(key, "parquet-row-ranges:v1:"))
+	require.NotContains(t, key, " ")
+	require.NotContains(t, key, "\n")
+	require.Less(t, len(key), 100)
+}
+```
+
+---
+
+# 26. Constraint order
+
+A subtle cache question:
+
+```go
+[]Constraint{
+	job == "api",
+	zone == "us-east",
+}
+```
+
+and:
+
+```go
+[]Constraint{
+	zone == "us-east",
+	job == "api",
+}
+```
+
+Are these the same?
+
+Semantically, for AND filters, yes.
+
+But implementation order may be stable upstream. You need to decide.
+
+Option A: preserve order.
+
+```text
+safer if upstream order has meaning
+lower hit rate if same constraints appear in different order
+```
+
+Option B: sort constraint strings before keying.
+
+```text
+higher hit rate
+only correct if constraint order is semantically irrelevant
+```
+
+If you sort, test it:
+
+```go
+func TestRowRangesCacheKeyConstraintOrderIndependent(t *testing.T) {
+	k1 := rowRangesCacheKey("tenant-a", "shard", 0, 0, []string{
+		`equal("l_job","api")`,
+		`equal("l_zone","us-east")`,
+	})
+
+	k2 := rowRangesCacheKey("tenant-a", "shard", 0, 0, []string{
+		`equal("l_zone","us-east")`,
+		`equal("l_job","api")`,
+	})
+
+	require.Equal(t, k1, k2)
+}
+```
+
+---
+
+# 27. Parquet: why row ranges exist
+
+Parquet is columnar.
+
+Instead of storing:
+
+```text
+row 0: name=up, job=api, zone=us-east
+row 1: name=up, job=db,  zone=us-west
+row 2: name=http_requests_total, job=api, zone=us-east
+```
+
+it stores column chunks:
+
+```text
+l___name__ = [up, up, http_requests_total]
+l_job      = [api, db, api]
+l_zone     = [us-east, us-west, us-east]
+```
+
+Inside row groups.
+
+The Parquet format is built around files, row groups, column chunks, and pages; row groups contain column chunks, and column chunks contain pages. ([GitHub][4])
+
+If query says:
+
+```promql
+{job="api"}
+```
+
+we can inspect only:
+
+```text
+l_job
+```
+
+and discover matching rows:
+
+```text
+row 0
+row 2
+```
+
+Those become:
+
+```go
+[]RowRange{
+	{From: 0, Count: 1},
+	{From: 2, Count: 1},
+}
+```
+
+The row-ranges cache stores the answer to:
+
+```text
+for this tenant + shard + row group + constraints,
+which rows matched?
+```
+
+---
+
+# 28. Why Parquet label columns can explode
+
+In Prometheus, a series has labels:
+
+```text
+__name__="up"
+job="api"
+zone="us-east"
+```
+
+In a Parquet schema, distinct label names become columns:
+
+```text
+l___name__
+l_job
+l_zone
+```
+
+If a TSDB block has 2 million distinct label names, that could imply roughly 2 million label columns.
+
+That is a problem because Parquet libraries and practical file formats have column-count limits and performance limits. This is why a converter may shard Parquet output or skip conversion for pathological blocks.
+
+---
+
+# 29. No-convert marker pattern
+
+The no-convert marker pattern is not really a cache, but it is cache-adjacent.
+
+It stores a persistent decision:
+
+```text
+this block should not be converted to Parquet
+```
+
+Object storage layout:
+
+```text
+tenant/block-id/meta.json
+tenant/block-id/chunks/...
+tenant/block-id/no-parquet-convert-marker
+```
+
+Algorithm:
+
+```go
+func ConvertBlock(ctx context.Context, bucket Bucket, block Block, cfg Config) error {
+	markerName := block.ID + "/no-parquet-convert"
+
+	if bucket.Exists(ctx, markerName) {
+		return nil
+	}
+
+	labelCount := CountDistinctLabels(block)
+
+	if labelCount > cfg.NoConvertLabelThreshold {
+		body := []byte(fmt.Sprintf("label_count=%d\n", labelCount))
+		return bucket.Upload(ctx, markerName, body)
+	}
+
+	return ConvertToParquet(ctx, bucket, block)
+}
+```
+
+This avoids repeatedly trying to convert a block that is known to be pathological.
+
+---
+
+# 30. Multi-level cache
+
+A multi-level cache uses more than one backend.
+
+Example:
+
+```text
+L1 = in-memory
+L2 = memcached
+```
+
+Read flow:
+
+```text
+check L1
+if hit -> return
+
+check L2
+if hit -> backfill L1 -> return
+
+miss -> compute -> store in L1 and L2
+```
+
+Toy implementation:
+
+```go
+type MultiLevelCache struct {
+	l1 ByteCache
+	l2 ByteCache
+	ttl time.Duration
+}
+
+func (c *MultiLevelCache) Fetch(ctx context.Context, key string) ([]byte, bool) {
+	if v, ok := c.l1.Fetch(ctx, key); ok {
+		return v, true
+	}
+
+	if v, ok := c.l2.Fetch(ctx, key); ok {
+		c.l1.Store(ctx, map[string][]byte{key: v}, c.ttl)
+		return v, true
+	}
+
+	return nil, false
+}
+
+func (c *MultiLevelCache) Store(ctx context.Context, key string, value []byte) {
+	c.l1.Store(ctx, map[string][]byte{key: value}, c.ttl)
+	c.l2.Store(ctx, map[string][]byte{key: value}, c.ttl)
+}
+```
+
+Cortex’s bucket cache configuration supports multi-level combinations via comma-separated backends in its config path. ([Cortex][5])
+
+---
+
+# 31. Cache correctness checklist
+
+When reviewing any Cortex cache implementation, ask:
+
+```text
+What is the expensive operation?
+What exactly is the cache key?
+Does the key include tenant ID?
+Does the key include all data that affects the result?
+Is the key safe for Memcached/Redis?
+What is the value format?
+Is the value versioned?
+Can decode fail safely?
+Is cache miss behavior correct?
+Does cache failure break queries?
+Is the cache bounded?
+Does TTL make sense?
+Are metrics registered once?
+Does the cache get recreated per request?
+Can this produce a typed-nil interface?
+Does it need singleflight?
+Does it use a noop cache?
+```
+
+For row-ranges cache specifically:
+
+```text
+key = tenant + shard + row group + constraints
+value = encoded []RowRange
+corrupt value = miss
+disabled backend = nil/noop
+cache hit must not change query result
+empty []RowRange must be a valid hit
+```
+
+---
+
+# 32. Production-grade tests
+
+A meaningful cache test suite should include:
+
+```go
+func TestCacheMiss(t *testing.T) {}
+func TestSetThenGet(t *testing.T) {}
+func TestEmptyValueCanBeCached(t *testing.T) {}
+func TestDifferentTenantDoesNotHit(t *testing.T) {}
+func TestDifferentShardDoesNotHit(t *testing.T) {}
+func TestDifferentRowGroupDoesNotHit(t *testing.T) {}
+func TestDifferentConstraintsDoesNotHit(t *testing.T) {}
+func TestCorruptCachedValueIsMiss(t *testing.T) {}
+func TestCacheKeySafeForBackend(t *testing.T) {}
+func TestDecodeRejectsBadVersion(t *testing.T) {}
+func TestDecodeRejectsShortPayload(t *testing.T) {}
+func TestDecodeRejectsTrailingBytes(t *testing.T) {}
+func TestEncodeRejectsNegativeRange(t *testing.T) {}
+func TestNilBackendReturnsNilOrNoop(t *testing.T) {}
+```
+
+For singleflight:
+
+```go
+func TestSingleFlightDeduplicatesConcurrentCompute(t *testing.T) {
+	group := NewSingleFlight()
+
+	var calls atomic.Int64
+
+	compute := func() ([]byte, error) {
+		calls.Add(1)
+		time.Sleep(50 * time.Millisecond)
+		return []byte("value"), nil
+	}
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			v, err, _ := group.Do("same-key", compute)
+			require.NoError(t, err)
+			require.Equal(t, []byte("value"), v)
+		}()
+	}
+
+	wg.Wait()
+
+	require.Equal(t, int64(1), calls.Load())
+}
+```
+
+This proves:
+
+```text
+100 goroutines
+same key
+only one compute
+```
+
+---
+
+# 33. How to read Cortex cache code
+
+When you open a Cortex cache file, do not read top-to-bottom first.
+
+Read in this order:
+
+```text
+1. Config struct
+2. Constructor
+3. Public interface
+4. Key builder
+5. Value encoder/decoder
+6. Get path
+7. Set path
+8. Error handling
+9. Metrics
+10. Tests
+```
+
+For example, for a cache file ask:
+
+```text
+What does NewXCache return when disabled?
+Does it return nil, noop, or error?
+Does Get return (value, bool), or does it compute?
+Does Set return error or ignore backend failure?
+Does Delete really delete or no-op?
+```
+
+This is how you avoid being lost.
+
+---
+
+# 34. The bigger lesson
+
+At first, caching looks like:
+
+```text
+map[key]value
+```
+
+In Cortex, caching is a distributed systems design problem:
+
+```text
+multi-tenant safety
+object-store cost reduction
+query CPU reduction
+replica sharing
+bounded memory
+external backend failure
+wire format stability
+in-flight deduplication
+metrics and observability
+```
+
+The main patterns are:
+
+```text
+1. Typed adapter over byte backend
+2. No-op cache for disabled mode
+3. Cache-as-optimization failure behavior
+4. Tenant-aware deterministic keys
+5. Versioned value encoding
+6. Singleflight for concurrent misses
+7. Multi-level cache for local speed + shared reuse
+8. Tests for corrupt entries and key separation
+```
+
+Once you see those patterns, Cortex cache implementations become much less mysterious.
+
+They are not random code.
+
+They are answers to production questions:
+
+```text
+Where is the expensive work?
+Can we reuse its result?
+Can we do that without breaking correctness?
+Can we do that safely across tenants and replicas?
+Can we prove it with tests?
+```
+
+That is the real engineering behind caching in Cortex.
+
+[1]: https://github.com/cortexproject/cortex?utm_source=chatgpt.com "cortexproject/cortex: A horizontally scalable, highly ..."
+[2]: https://cortexmetrics.io/docs/blocks-storage/store-gateway/?utm_source=chatgpt.com "Store-gateway - Cortex Metrics"
+[3]: https://github.com/cortexproject/cortex/blob/master/pkg/storage/tsdb/caching_bucket.go?utm_source=chatgpt.com "cortex/pkg/storage/tsdb/caching_bucket.go at master"
+[4]: https://github.com/prometheus-community/parquet-common?utm_source=chatgpt.com "prometheus-community/parquet-common: Shared library to ..."
+[5]: https://cortexmetrics.io/docs/blocks-storage/querier/?utm_source=chatgpt.com "Querier - Cortex Metrics"
+

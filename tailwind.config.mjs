@@ -4,13 +4,19 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        satoshi: ["Satoshi", "sans-serif"],
+        sans: ["var(--font-body)"],
+        satoshi: ["var(--font-body)"],
+        serif: ["var(--font-heading)"],
+        heading: ["var(--font-heading)"],
+        "alt-heading": ["var(--font-alt-heading)"],
+        mono: ["var(--font-mono)"],
       },
       colors: {
-		   primary: 'var(--color-primary)',
+        primary: "var(--color-primary)",
         bg: "var(--bg)",
         fg: "var(--fg)",
-        muted: "hsl(var(--muted))",
+        muted: "var(--muted)",
+        title: "var(--ink)",
       },
       backgroundImage: {
         dotted: "url('/assets/dotted.svg')",

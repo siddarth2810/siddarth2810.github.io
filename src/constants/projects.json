@@ -1,51 +1,61 @@
 [
   {
     "id": 1,
+    "slug": "askmydoc",
     "title": "AskMyDoc",
-    "description": "AI‑driven PDF QA assistant that gives contextually relevant answers",
-    "tech": ["LangChain", "FAISS", "Next.js", "FastAPI", "Gen AI"],
-    "link":  "https://github.com/siddarth2810/AskMyDoc_v2"
+    "shortDescription": "RAG-based PDF question-answering assistant.",
+    "description": "Built a RAG-based PDF question-answering assistant for people working through long documents, focused on grounded answers with page-level context.",
+    "details": "Built a FastAPI backend with semantic search over document pages and a custom ReAct-style reasoning loop to answer questions with document context.",
+    "tech": ["FastAPI", "Next.js", "FAISS", "OpenAI Embeddings"],
+    "badges": ["AI Tool", "Document QA"],
+    "link": "https://github.com/siddarth2810/AskMyDoc_v2"
   },
   {
     "id": 2,
+    "slug": "naash",
     "title": "NAASH",
-    "description": "AI-powered terminal shell that improves speed and efficiency through natural language interaction",
-    "tech": ["TypeScript", "Bash"],
-    "link":  "https://github.com/Sushants-Git/naash"
+    "shortDescription": "AI-powered terminal shell for developer workflows.",
+    "description": "Built an AI-powered terminal shell for developers working in command-line workflows, focused on natural-language command execution and error inspection.",
+    "details": "Built a shell interface that lets developers use natural language to run commands, inspect errors, and work faster in the terminal.",
+    "tech": ["TypeScript", "Gemini API", "Azure OpenAI"],
+    "badges": ["Developer Tool", "Terminal"],
+    "link": "https://github.com/Sushants-Git/naash",
+    "preview": {
+      "eyebrow": "Shell",
+      "title": "Ask, run, inspect",
+      "lines": ["natural command", "explain failures", "iterate faster"]
+    }
   },
   {
-    "id":3,
-    "title": "HTTP server",
-    "description": "A http server built from scratch to understand the internals of HTTP protocol",
+    "id": 3,
+    "slug": "http-server",
+    "title": "HTTP Server",
+    "shortDescription": "HTTP server built from scratch in Go.",
+    "description": "Built an HTTP server from scratch for backend engineers learning protocol internals, focused on request parsing, headers, content length, and chunked responses.",
+    "details": "Implemented request parsing, headers, content-length handling, and basic chunked responses to understand backend protocol internals.",
     "tech": ["Go", "Bash"],
-    "link":  "https://github.com/siddarth2810/http-server"
+    "badges": ["Backend", "Protocols"],
+    "link": "https://github.com/siddarth2810/http-server",
+    "preview": {
+      "eyebrow": "HTTP/1.1",
+      "title": "Parse raw requests",
+      "lines": ["read headers", "handle body", "write response"]
+    }
   },
   {
-    "id":4,
-    "title": "Knot",
-    "description": "A browser extension to save your readings and use OpenClaw to draft an online post",
-    "tech": ["JavaScript", "OpenClaw"],
-    "link":  "https://github.com/siddarth2810/Knot"
-  },
-  {
-    "id":5,
-    "title": "Blast Box",
-    "description": "A real‑time multiplayer shooting game inspired by diep.io.",
-    "tech": ["uWebSockets", "p5.js", "Azure"],
-    "link":  "https://github.com/siddarth2810/blast-box"
-  },
-  {
-    "id": 6,
+    "id": 4,
+    "slug": "compiler",
     "title": "Compiler",
-    "description": "Built a small compiler to understand more about Compiler theory",
+    "shortDescription": "Small compiler built to learn language internals.",
+    "description": "Built a small compiler for systems learners exploring language implementation, focused on parsing, code generation, and low-level compiler mechanics.",
+    "details": "Implemented a compact compiler project to understand compiler theory through parsing, lowering, generated output, and command-line build workflows.",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
-    "link":  "https://github.com/siddarth2810/rust-compiler"
-  },
-  {
-    "id": 7,
-    "title": "SiteKick",
-    "description": "Generate and deploy full websites from simple prompts via WhatsApp.",
-    "tech": ["TypeScript", "LLMs"],
-    "link":  "https://github.com/aifambience/SiteKick"
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/rust-compiler",
+    "preview": {
+      "eyebrow": "Compiler",
+      "title": "From source to output",
+      "lines": ["scan tokens", "parse syntax", "emit code"]
+    }
   }
 ]

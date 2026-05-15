@@ -2,13 +2,22 @@
 import Layout from "../layouts/Layout.astro";
 import socialData from "../constants/socials.json";
 import projects from "../constants/projects.json";
-import CommunityGrid from "../components/CommunityGrid";
-import { getCommunityImages } from "../util/community-images";
+import writingPostsData from "../constants/blogs.json";
+import ProjectCard from "../components/ui/ProjectCard.astro";
 import { Icon } from "astro-icon/components";
 import { RiArrowRightUpLine } from "react-icons/ri";
 
 const socials = socialData;
-const communityImages = await getCommunityImages();
+const baseUrl = import.meta.env.BASE_URL;
+const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+const withBase = (path: string) =>
+  `${baseWithTrailingSlash}${path.replace(/^\/+/, "")}`;
+
+const featuredProjects = projects;
+const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
+  ...post,
+  source: new URL(post.link).hostname.replace(/^www\./, ""),
+}));
 const experiences = [
   {
     company: "Tower Cloud",
@@ -16,11 +25,8 @@ const experiences = [
     icon: "/tower.webp",
     role: "Software Engineer",
     dateRange: "2025 - Present",
-    bullets: [
-      "Built the entire observability stack used across the cloud platform.",
-      "Redesigned auth flows by replacing DB-backed session checks with Keycloak JWT verification",
-      "Deployed Percona PostgreSQL on Kubernetes with automated backup/restore using Velero.",
-    ],
+    summary:
+      "Building observability and platform infrastructure across the cloud stack. Redesigned auth flows with Keycloak JWT verification, deployed Percona PostgreSQL on Kubernetes, and automated backup and restore workflows with Velero.",
   },
   {
     company: "The Linux Foundation",
@@ -28,20 +34,46 @@ const experiences = [
     icon: "/linux_foundation.webp",
     role: "Linux Kernel Mentee",
     dateRange: "2025",
-    bullets: [
-      "Collaborated with maintainers and contributed patches to the upstream Linux kernel.",
-      "Explored tools like Syzkaller, Smatch, and Coccinelle to reproduce bugs, analyze reports, and finding fixes.",
-    ],
+    summary:
+      "Contributed patches to the upstream Linux kernel while working with maintainers. Used Syzkaller, Smatch, and Coccinelle to reproduce bugs, analyze reports, and validate fixes.",
   },
 ];
 ---
 
 <Layout title="Siddarth Gundu">
   <div>
-    <h1 class="text-primary font-serif text-[2.5rem] tracking-tight">
+    <h1 class="home-title text-primary font-serif text-[2.5rem] tracking-tight">
       Siddarth Gundu
     </h1>
-    <div class="flex items-center gap-1.5 font-medium tracking-tight"></div>
+    <div class="flex items-center gap-1.5 font-normal tracking-tight"></div>
+    <p class="pt-4 text-sm">
+      Hi there, I'm a software engineer from <span class="text-title">
+        Hyderabad, India
+      </span>. I work on backend infrastructure, observability, and open-source
+      systems. I’ve contributed to
+      <a
+        href="https://github.com/cortexproject/cortex"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary hover:underline underline-offset-4"
+      >
+        Cortex Metrics,
+      </a>
+      the Linux kernel, and built Kubernetes/observability infrastructure at Tower
+      Cloud.
+    </p>
+    <p class="text-sm">
+      I run a Ubuntu setup with i3, check out my
+      <a
+        href="https://github.com/siddarth2810/.dotfiles"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-primary hover:underline underline-offset-4"
+      >
+        Dotfiles
+      </a>
+      :)
+    </p>
     <div
       class="socials grid w-fit grid-cols-3 gap-2 pt-2 tracking-tight md:flex md:flex-row md:items-start"
     >
@@ -50,9 +82,7 @@ const experiences = [
           <a
             href={social.url}
             target={social.target}
-            rel={
-              social.target === "_blank" ? "noopener noreferrer" : undefined
-            }
+            rel={social.target === "_blank" ? "noopener noreferrer" : undefined}
             class="group md:hover:text-primary flex items-center underline-offset-4 transition duration-150 ease-in-out md:hover:underline"
           >
             <Icon name={social.icon} size={14} class="mr-1.5" />
@@ -62,35 +92,6 @@ const experiences = [
         ))
       }
     </div>
-    <p class="bio pt-4 text-justify text-sm">
-      Hi there, I'm a software engineer from <span class="text-black">
-        Hyderabad, India
-      </span>. I spent a significant amount of time playing with computers and
-      contributing to open source software. I love geeking out on tech,
-      attending conferences and meeting new people.<br />I'm currently working
-      on
-      <a
-        href="https://github.com/cortexproject/cortex"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Cortex metrics.
-      </a>
-    </p>
-    <p class="bio text-justify text-sm">
-        I run a Ubuntu setup with i3, check out my
-      <a
-        href="https://github.com/siddarth2810/.dotfiles"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Dotfiles
-      </a>
-                        :)
-    </p>
-
   </div>
 
   <section class="experience-section pt-10" id="experience">
@@ -111,159 +112,94 @@ const experiences = [
               />
 
               <div class="experience-meta">
-                {
-                  exp.companyUrl ? (
-                    <a
-                      class="experience-company"
-                      href={exp.companyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {exp.company}
-                    </a>
-                  ) : (
-                    <p class="experience-company">{exp.company}</p>
-                  )
-                }
+                {exp.companyUrl ? (
+                  <a
+                    class="experience-company"
+                    href={exp.companyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {exp.company}
+                  </a>
+                ) : (
+                  <p class="experience-company">{exp.company}</p>
+                )}
 
-                <p class="experience-role">{exp.role}</p>
+                <p class="experience-role">
+                  {exp.role} · {exp.dateRange}
+                </p>
               </div>
             </div>
 
-            <ul class="experience-points">
-              {exp.bullets.map((point) => <li>{point}</li>)}
-            </ul>
+            <p class="experience-summary">
+              <strong>
+                {exp.company} - {exp.role}.
+              </strong>{" "}
+              {exp.summary}
+            </p>
           </article>
         ))
       }
     </div>
   </section>
 
-  <section class="pt-8">
-    <h2 class="font-serif text-2xl font-medium tracking-tight">
-      Experiments & Quick Projects
-    </h2>
+  <section class="home-section" id="projects">
+    <header class="section-header">
+      <div class="section-header__text">
+        <p class="section-eyebrow">Projects</p>
+        <h2 class="section-heading">Projects</h2>
+        <p class="section-copy">
+          Focused builds across AI tools, terminal workflows, backend protocols,
+          and compiler internals.
+        </p>
+      </div>
 
-    <div class="flex flex-col gap-2 pt-3">
+      <a class="section-action" href={withBase("projects")}>
+        <span>View all projects</span>
+        <RiArrowRightUpLine className="section-action__icon" />
+      </a>
+    </header>
+
+    <div class="projects-grid" aria-label="Featured projects">
       {
-        projects.map((project) => (
-          <div class="flex flex-col items-start">
-            <a
-              href={project.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-black group relative -mx-3 w-full rounded-lg px-3 py-2 transition-all duration-300 ease-in-out hover:bg-[#895737]/10 md:hover:scale-105"
-            >
-              <div class="text-title md:group-hover:text-primary flex items-center justify-between text-sm font-medium tracking-tight">
-                <h3>{project.title}</h3>
-                <RiArrowRightUpLine className="text-primary ml-0.5 opacity-0 transition-opacity duration-150 md:group-hover:opacity-100" />
-              </div>
-              <p class="text-sm opacity-60">{project.description}</p>
-            </a>
-          </div>
+        featuredProjects.map((project) => (
+          <ProjectCard project={project} showDetails={false} />
         ))
       }
     </div>
   </section>
 
-  <CommunityGrid client:load images={communityImages} />
+  <section class="home-section" id="writing">
+    <header class="section-header">
+      <div class="section-header__text">
+        <p class="section-eyebrow">Writing</p>
+        <h2 class="section-heading">3 technical posts</h2>
+        <p class="section-copy">
+          Technical notes on kernel mentorship, Kubernetes observability, and
+          terminal workflow improvements.
+        </p>
+      </div>
+
+      <a class="section-action" href={withBase("blogs")}>
+        <span>View all writings</span>
+        <RiArrowRightUpLine className="section-action__icon" />
+      </a>
+    </header>
+
+    <div class="writing-list" aria-label="Featured writing">
+      {
+        writingPosts.map((post) => (
+          <a
+            class="writing-card"
+            href={post.link}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <h3>{post.title}</h3>
+            <p class="writing-card__source">{post.source}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
 </Layout>
-
-<style>
-  .experience-header h2 {
-    margin: 0;
-    font-size: 1.7rem;
-    font-weight: 500;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-
-  .experience-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-
-  .experience-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .experience-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.9rem;
-  }
-
-  .experience-logo {
-    width: 2.75rem;
-    height: 2.75rem;
-    flex: 0 0 2.75rem;
-    border-radius: 0.9rem;
-    border: 1px solid rgba(83, 83, 83, 0.1);
-    background: rgba(255, 255, 255, 0.72);
-    object-fit: contain;
-    padding: 0.35rem;
-  }
-
-  .experience-meta {
-    min-width: 0;
-  }
-
-  .experience-company {
-    display: inline-block;
-    margin: 0;
-    color: var(--fg);
-    font-size: 1rem;
-    line-height: 1.35;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .experience-company:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.16em;
-  }
-
-  .experience-role,
-  .experience-date {
-    margin: 0.2rem 0 0;
-    font-size: 0.875rem;
-  }
-
-  .experience-role {
-    color: rgba(83, 83, 83, 0.88);
-  }
-
-  .experience-date {
-    color: rgba(83, 83, 83, 0.65);
-  }
-
-  .experience-points {
-    margin: 0;
-    padding-left: 1.1rem;
-    list-style: disc;
-    color: rgba(83, 83, 83, 0.85);
-    font-size: 0.875rem;
-    line-height: 1.25;
-  }
-
-  .experience-points li + li {
-    margin-top: 0.3rem;
-  }
-
-  @media (max-width: 767px) {
-    .experience-section {
-      padding-top: 2.5rem;
-    }
-
-    .experience-logo {
-      width: 2.5rem;
-      height: 2.5rem;
-      flex-basis: 2.5rem;
-    }
-  }
-</style>

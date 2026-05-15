@@ -1,32 +1,300 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { RiArrowRightUpLine } from "react-icons/ri";
-import blogs from "../../constants/blogs.json";
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import externalBlogs from "../../constants/blogs.json";
+import {
+  formatPostDate,
+  getPostSummary,
+  getReadingTime,
+  sortPostsByDate,
+} from "../../util/blog";
+
+type BlogPost = CollectionEntry<"blog">;
+
+const baseUrl = import.meta.env.BASE_URL;
+const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+const withBase = (path: string) =>
+  `${baseWithTrailingSlash}${path.replace(/^\/+/, "")}`;
+
+const posts = sortPostsByDate(
+  await getCollection("blog", (post: BlogPost) => !post.data.draft),
+);
+
+const externalPosts = externalBlogs.map((blog) => ({
+  ...blog,
+  source: new URL(blog.link).hostname.replace(/^www\./, ""),
+}));
 ---
 
 <Layout title="Siddarth Gundu • writes">
-  <h1 class="text-primary font-serif text-[2.5rem] tracking-tight">Writings</h1>
-  <h2 class="text-title text-base font-medium tracking-tight">
-    some blogs on code, tech and things in general
-  </h2>
-    <div class="pt-3 flex flex-col gap-2">
+  <section class="blog-index">
+    <header class="blog-index__header">
+      <h1>Writings</h1>
+      <p>
+        Notes on systems, open source, infrastructure, and the edges around
+        them.
+      </p>
+    </header>
+
+    <div class="blog-list" aria-label="Local blog posts">
       {
-        blogs.map((blog) => (
-          <div class="flex flex-col items-start">
-            <a
-              href={blog.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-black group relative -mx-3 w-full rounded-lg px-3 py-2 transition-all duration-300 ease-in-out
-        hover:bg-[#895737]/10 md:hover:scale-105"
-            >
-              <div class="text-title  md:group-hover:text-primary flex items-center justify-between text-sm font-medium tracking-tight">
-                <h3>{blog.title}</h3>
-                <RiArrowRightUpLine className="text-primary ml-0.5 opacity-0 transition-opacity duration-150 md:group-hover:opacity-100" />
-              </div>
+        posts.map((post) => (
+          <article class="blog-card">
+            <a href={withBase(`blogs/${post.slug}`)} class="blog-card__link">
+              <h2>{post.data.title}</h2>
+              <p class="blog-card__meta">
+                {formatPostDate(post.data.pubDate)} · About{" "}
+                {getReadingTime(post)} minute
+                {getReadingTime(post) === 1 ? "" : "s"} long
+              </p>
+              <p class="blog-card__summary">{getPostSummary(post)}</p>
+              {post.data.tags.length > 0 && (
+                <ul class="blog-card__tags" aria-label="Tags">
+                  {post.data.tags.map((tag: string) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )}
             </a>
-          </div>
+          </article>
         ))
       }
     </div>
+
+    <section class="external-writing" aria-labelledby="external-writing-title">
+      <h2 id="external-writing-title">Elsewhere</h2>
+      <div class="blog-list blog-list--external">
+        {
+          externalPosts.map((blog) => (
+            <article class="blog-card">
+              <a
+                href={blog.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="blog-card__link blog-card__link--external group"
+              >
+                <div class="blog-card__title-row">
+                  <h3>{blog.title}</h3>
+                  <RiArrowRightUpLine className="blog-card__external-icon" />
+                </div>
+                <p class="blog-card__meta">Published on {blog.source}</p>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </section>
 </Layout>
+
+<style>
+  .blog-index {
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .blog-index__header h1 {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-index__header p {
+    margin: 0.45rem 0 0;
+    color: var(--fg);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .blog-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .blog-card {
+    list-style: none;
+  }
+
+  .blog-card__link {
+    display: block;
+    border-radius: 2px;
+    background: var(--surface);
+    color: var(--fg);
+    padding: 1.35rem;
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .blog-card__link:hover,
+  .blog-card__link:focus-visible {
+    background: var(--surface-strong);
+    color: var(--fg);
+    transform: translateY(-1px);
+  }
+
+  .blog-card h2,
+  .blog-card h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  .blog-card h3 {
+    font-size: 1.55rem;
+  }
+
+  .blog-card__title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .blog-card__external-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 auto;
+    color: var(--color-primary);
+    margin-top: 0.25rem;
+    opacity: 0;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .blog-card__link--external:hover .blog-card__external-icon,
+  .blog-card__link--external:focus-visible .blog-card__external-icon {
+    opacity: 1;
+    transform: translate(1px, -1px);
+  }
+
+  .blog-card__meta {
+    margin: 0.55rem 0 0;
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .blog-card__summary {
+    margin: 0.8rem 0 0;
+    color: var(--fg);
+    font-size: 0.98rem;
+    line-height: 1.65;
+    text-wrap: pretty;
+  }
+
+  .blog-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .blog-card__tags li {
+    list-style: none;
+    border-radius: 2px;
+    background: rgba(var(--color-secondary-rgb), 0.13);
+    color: var(--color-primary);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1;
+    padding: 0.35rem 0.45rem;
+  }
+
+  .external-writing {
+    margin-top: 2.8rem;
+  }
+
+  .external-writing h2 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--font-heading);
+    font-size: 1.7rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+
+  .blog-list--external {
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .blog-index__header h1 {
+      font-size: 2.25rem;
+    }
+
+    .blog-card__link {
+      padding: 1rem;
+    }
+
+    .blog-card h2,
+    .blog-card h3 {
+      font-size: 1.55rem;
+    }
+
+    .blog-card__external-icon {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .blog-index__header h1 {
+      font-size: 2rem;
+      line-height: 1.08;
+    }
+
+    .blog-index__header p {
+      font-size: 0.94rem;
+    }
+
+    .blog-list {
+      gap: 0.8rem;
+      margin-top: 1.2rem;
+    }
+
+    .blog-card__link {
+      padding: 0.9rem;
+    }
+
+    .blog-card h2,
+    .blog-card h3 {
+      font-size: 1.36rem;
+      line-height: 1.15;
+    }
+
+    .blog-card__title-row {
+      gap: 0.65rem;
+    }
+
+    .blog-card__summary {
+      font-size: 0.92rem;
+      line-height: 1.58;
+    }
+
+    .blog-card__tags {
+      gap: 0.32rem;
+    }
+  }
+</style>
