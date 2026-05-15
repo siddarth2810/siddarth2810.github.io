@@ -3,9 +3,7 @@
     "id": 1,
     "slug": "askmydoc",
     "title": "AskMyDoc",
-    "shortDescription": "RAG-based PDF question-answering assistant.",
-    "description": "Built a RAG-based PDF question-answering assistant for people working through long documents, focused on grounded answers with page-level context.",
-    "details": "Built a FastAPI backend with semantic search over document pages and a custom ReAct-style reasoning loop to answer questions with document context.",
+    "description":  "RAG-based PDF question-answering assistant.",
     "tech": ["FastAPI", "Next.js", "FAISS", "OpenAI Embeddings"],
     "badges": ["AI Tool", "Document QA"],
     "link": "https://github.com/siddarth2810/AskMyDoc_v2"
@@ -14,48 +12,58 @@
     "id": 2,
     "slug": "naash",
     "title": "NAASH",
-    "shortDescription": "AI-powered terminal shell for developer workflows.",
-    "description": "Built an AI-powered terminal shell for developers working in command-line workflows, focused on natural-language command execution and error inspection.",
-    "details": "Built a shell interface that lets developers use natural language to run commands, inspect errors, and work faster in the terminal.",
+    "description": "AI-powered terminal shell for developer workflows.",
     "tech": ["TypeScript", "Gemini API", "Azure OpenAI"],
     "badges": ["Developer Tool", "Terminal"],
-    "link": "https://github.com/Sushants-Git/naash",
-    "preview": {
-      "eyebrow": "Shell",
-      "title": "Ask, run, inspect",
-      "lines": ["natural command", "explain failures", "iterate faster"]
-    }
+    "link": "https://github.com/Sushants-Git/naash"
   },
   {
     "id": 3,
     "slug": "http-server",
     "title": "HTTP Server",
-    "shortDescription": "HTTP server built from scratch in Go.",
-    "description": "Built an HTTP server from scratch for backend engineers learning protocol internals, focused on request parsing, headers, content length, and chunked responses.",
-    "details": "Implemented request parsing, headers, content-length handling, and basic chunked responses to understand backend protocol internals.",
+    "description":  "HTTP server built from scratch in Go.",
     "tech": ["Go", "Bash"],
     "badges": ["Backend", "Protocols"],
-    "link": "https://github.com/siddarth2810/http-server",
-    "preview": {
-      "eyebrow": "HTTP/1.1",
-      "title": "Parse raw requests",
-      "lines": ["read headers", "handle body", "write response"]
-    }
-  },
+    "link": "https://github.com/siddarth2810/http-server"  },
   {
     "id": 4,
     "slug": "compiler",
     "title": "Compiler",
-    "shortDescription": "Small compiler built to learn language internals.",
-    "description": "Built a small compiler for systems learners exploring language implementation, focused on parsing, code generation, and low-level compiler mechanics.",
-    "details": "Implemented a compact compiler project to understand compiler theory through parsing, lowering, generated output, and command-line build workflows.",
+    "description":"Small compiler built to learn language internals.",
     "tech": ["Rust", "GCC", "Bash", "Linux"],
     "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/rust-compiler",
-    "preview": {
-      "eyebrow": "Compiler",
-      "title": "From source to output",
-      "lines": ["scan tokens", "parse syntax", "emit code"]
-    }
-  }
+    "link": "https://github.com/siddarth2810/rust-compiler"  },
+  {
+    "id": 5,
+    "slug": "2D Game",
+    "title": "Blast-box",
+    "description":"A real-time multiplayer game inspired from the game diep.io.",
+    "tech": ["JavaScript", "Web Sockets"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/blast-box"  },
+  {
+    "id": 6,
+    "slug": "AI",
+    "title": "Knot",
+    "description":"A browser to save your readings and use OpenClaw to draft an online post",
+    "tech": ["OpenClaw", "JavaScript"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/Knot"  },
+  {
+    "id": 7,
+    "slug": "DevOps",
+    "title": "Daily Planner",
+    "description":"A simple Daily Planner deployed on Kubernetes cluster",
+    "tech": ["Kubernetes", "BuildSafe", "Azure"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/devops-project-cloned"  },
+  {
+    "id": 8,
+    "slug": "AI",
+    "title": "SiteKick",
+    "description":"Generate and deploy full websites from prompts using WhatsApp",
+    "tech": ["Vercel SDK", "TypeScript"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/aifambience/SiteKick"  }
+
 ]

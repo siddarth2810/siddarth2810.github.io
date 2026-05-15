@@ -1,4 +1,6 @@
 ---
+import { RiArrowRightUpLine } from "react-icons/ri";
+
 type ProjectPreview = {
   eyebrow: string;
   title: string;
@@ -32,7 +34,10 @@ const isExternal = /^https?:\/\//.test(project.link);
   rel={isExternal ? "noopener noreferrer" : undefined}
   aria-label={`View ${project.title}`}
 >
-
+  <RiArrowRightUpLine
+    className="project-card__external-icon"
+    aria-hidden="true"
+  />
 
   <div class="project-card__body">
     <h3 class="project-card__title">{project.title}</h3>

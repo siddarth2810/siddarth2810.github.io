@@ -4,8 +4,14 @@ import socialData from "../constants/socials.json";
 import projects from "../constants/projects.json";
 import writingPostsData from "../constants/blogs.json";
 import ProjectCard from "../components/ui/ProjectCard.astro";
+import CommunityGrid from "../components/CommunityGrid"
 import { Icon } from "astro-icon/components";
 import { RiArrowRightUpLine } from "react-icons/ri";
+
+
+import { getCommunityImages } from "../util/community-images";
+
+const communityImages = await getCommunityImages();
 
 const socials = socialData;
 const baseUrl = import.meta.env.BASE_URL;
@@ -13,7 +19,7 @@ const baseWithTrailingSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 const withBase = (path: string) =>
   `${baseWithTrailingSlash}${path.replace(/^\/+/, "")}`;
 
-const featuredProjects = projects;
+const featuredProjects = projects.slice(0, 3);
 const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
   ...post,
   source: new URL(post.link).hostname.replace(/^www\./, ""),
@@ -59,7 +65,7 @@ const experiences = [
       >
         Cortex Metrics,
       </a>
-      the Linux kernel, and built Kubernetes/observability infrastructure at Tower
+      the Linux kernel, and built observability infrastructure at Tower
       Cloud.
     </p>
     <p class="text-sm">
@@ -96,57 +102,35 @@ const experiences = [
 
   <section class="experience-section pt-10" id="experience">
     <div class="experience-header">
-      <h2 class="font-serif">Experience</h2>
+      <h2 class="font-serif">Work Experience</h2>
     </div>
+                <div class="experience-list">
+  {
+    experiences.map((exp) => (
+      <article class="experience-item">
+        <img
+          class="experience-logo"
+          src={exp.icon}
+          alt={`${exp.company} logo`}
+          loading="lazy"
+        />
 
-    <div class="experience-list">
-      {
-        experiences.map((exp) => (
-          <article class="experience-item">
-            <div class="experience-top">
-              <img
-                class="experience-logo"
-                src={exp.icon}
-                alt={`${exp.company} logo`}
-                loading="lazy"
-              />
+        <p class="experience-summary">
+          <strong>
+            {exp.company} - {exp.role}.
+          </strong>{" "}
+          {exp.summary}
+        </p>
+      </article>
+    ))
+  }
+</div>
 
-              <div class="experience-meta">
-                {exp.companyUrl ? (
-                  <a
-                    class="experience-company"
-                    href={exp.companyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {exp.company}
-                  </a>
-                ) : (
-                  <p class="experience-company">{exp.company}</p>
-                )}
-
-                <p class="experience-role">
-                  {exp.role} · {exp.dateRange}
-                </p>
-              </div>
-            </div>
-
-            <p class="experience-summary">
-              <strong>
-                {exp.company} - {exp.role}.
-              </strong>{" "}
-              {exp.summary}
-            </p>
-          </article>
-        ))
-      }
-    </div>
   </section>
 
   <section class="home-section" id="projects">
     <header class="section-header">
       <div class="section-header__text">
-        <p class="section-eyebrow">Projects</p>
         <h2 class="section-heading">Projects</h2>
         <p class="section-copy">
           Focused builds across AI tools, terminal workflows, backend protocols,
@@ -172,11 +156,9 @@ const experiences = [
   <section class="home-section" id="writing">
     <header class="section-header">
       <div class="section-header__text">
-        <p class="section-eyebrow">Writing</p>
-        <h2 class="section-heading">3 technical posts</h2>
+        <h2 class="section-heading">Writing</h2>
         <p class="section-copy">
-          Technical notes on kernel mentorship, Kubernetes observability, and
-          terminal workflow improvements.
+                Articles on engineering and technology
         </p>
       </div>
 
@@ -195,11 +177,19 @@ const experiences = [
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h3>{post.title}</h3>
+            <div class="writing-card__title-row">
+              <h3>{post.title}</h3>
+              <RiArrowRightUpLine
+                className="writing-card__external-icon"
+                aria-hidden="true"
+              />
+            </div>
             <p class="writing-card__source">{post.source}</p>
           </a>
         ))
       }
     </div>
   </section>
+
+ <CommunityGrid client:load images={communityImages} />
 </Layout>
