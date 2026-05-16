@@ -1,5 +1,8 @@
 ---
-import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import {
+  MdOutlineKeyboardArrowDown,
+  MdOutlineKeyboardBackspace,
+} from "react-icons/md";
 import { withBase } from "../util/site-paths";
 import ThemeToggle from "./ui/ThemeToggle.astro";
 
@@ -16,7 +19,10 @@ const navLinks = [
 ];
 ---
 
-<nav class="site-nav flex items-center justify-between pb-8 tracking-tight">
+<nav
+  class="site-nav flex items-center justify-between pb-8 tracking-tight"
+  aria-label="Primary navigation"
+>
   <div class="site-nav__home">
     {
       isHomePage ? (
@@ -49,4 +55,29 @@ const navLinks = [
 
     {!isHomePage && <ThemeToggle />}
   </div>
+
+  <details class="site-nav__menu">
+    <summary class="site-nav__menu-summary">
+      <span>menu</span>
+      <MdOutlineKeyboardArrowDown
+        className="site-nav__menu-icon"
+        aria-hidden="true"
+      />
+    </summary>
+    <div class="site-nav__menu-panel">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            target="_self"
+            class="site-nav__menu-link hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+
+      {!isHomePage && <ThemeToggle />}
+    </div>
+  </details>
 </nav>
