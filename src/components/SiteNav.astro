@@ -13,6 +13,7 @@ interface Props {
 const { isHomePage } = Astro.props;
 
 const navLinks = [
+  { href: withBase("opensource-log"), label: "oss" },
   { href: withBase("projects"), label: "projects" },
   { href: withBase("blogs"), label: "writings" },
   { href: withBase("reads"), label: "reads" },
