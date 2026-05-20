@@ -14,7 +14,7 @@ export default function CommunityGrid({ images }: CommunityGridProps) {
     <section className="home-section community-section" id="community">
       <div>
         <h2 className="section-heading">Community Work</h2>
-        <p className="experience-summary">
+        <p className="about-copy--lead experience-summary">
           Photos and moments from workshop sessions and coding events.
         </p>
       </div>
