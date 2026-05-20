@@ -319,6 +319,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 .bio {
         color: var(--muted);
         font-weight: 450;
+        color: red;
         line-height: 1.68;
         text-wrap: pretty;
         font-family: var(--font-body);
@@ -340,7 +341,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 }
 
 .about-copy--lead {
-        padding-top: 1rem;
+        padding-top: 0.5rem;
 }
 
 .about-copy+.about-copy {
@@ -388,7 +389,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         display: flex;
         flex-direction: column;
         gap: 1.65rem;
-        margin-top: 1.55rem;
+        margin-top: 0.9rem;
 }
 
 .experience-item {
@@ -458,7 +459,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         gap: 0.4rem;
         color: var(--ink);
         font-weight: 400;
-        line-height: 1.4;
+        line-height: 1.7;
         text-decoration: none;
         text-underline-offset: 3px;
         position: relative;
@@ -1041,6 +1042,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         .experience-summary {
                 font-size: 1.12rem;
                 line-height: 1.68;
+                text-align: justify;
         }
 
         .home-title,
