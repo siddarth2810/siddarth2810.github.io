@@ -17,149 +17,214 @@ const communityImages = await getCommunityImages();
 const socials = socialData;
 const featuredProjects = projects.slice(0, 3);
 const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
-  ...post,
-  source: getHostname(post.link),
+        ...post,
+        source: getHostname(post.link),
 }));
 ---
 
 <Layout title="Siddarth Gundu">
-  <div>
-    <h1 class="home-title text-primary font-serif text-[2.5rem] tracking-tight">
-      Siddarth Gundu
-    </h1>
-    <div class="flex items-center gap-1.5 font-normal tracking-tight"></div>
-    <p class="about-copy about-copy--lead">
-      Hi there, I'm a software engineer from <span class="text-title">
-        Hyderabad, India
-      </span>. I work on backend infrastructure, observability, and open-source
-      systems. I’ve contributed to
-      <a
-        href="https://github.com/cortexproject/cortex"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Cortex Metrics,
-      </a>
-      the Linux kernel, and built observability infrastructure at Tower Cloud.
-    </p>
-    <p class="about-copy">
-      I run a Ubuntu setup with i3, check out my
-      <a
-        href="https://github.com/siddarth2810/.dotfiles"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Dotfiles
-      </a>
-      :)
-    </p>
-    <div class="socials">
-      {
-        socials.map((social) => (
-          <a
-            href={social.url}
-            target={social.target}
-            rel={social.target === "_blank" ? "noopener noreferrer" : undefined}
-            class="socials__link group"
-          >
-            <Icon name={social.icon} class="socials__icon" />
-            <span class="socials__label">{social.name}</span>
-            <RiArrowRightUpLine className="socials__arrow" aria-hidden="true" />
-          </a>
-        ))
-      }
-    </div>
-  </div>
+        <div>
+                <h1
+                        class="home-title text-primary font-serif text-[2.5rem] tracking-tight"
+                >
+                        Siddarth Gundu
+                </h1>
+                <div
+                        class="flex items-center gap-1.5 font-normal tracking-tight"
+                >
+                </div>
+                <p class="about-copy about-copy--lead">
+                        Hi there, I'm a software engineer from <span
+                                class="text-title"
+                        >
+                                Hyderabad, India
+                        </span>. I work on backend, observability, and
+                        open-source systems. I contribute to
+                        <a
+                                href="https://github.com/cortexproject/cortex"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-primary hover:underline underline-offset-4"
+                        >
+                                Cortex Metrics,
+                        </a>
+                        the Linux kernel, and previously built observability infrastructure
+                        at
+                        <a
+                                href="https://tower.cloud/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-primary hover:underline underline-offset-4"
+                        >
+                                Tower Cloud.
+                        </a>
+                </p>
+                <p class="about-copy">
+                        I run a Ubuntu setup with i3WM, check out my
+                        <a
+                                href="https://github.com/siddarth2810/.dotfiles"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-primary hover:underline underline-offset-4"
+                        >
+                                Dotfiles
+                        </a>
+                        :)
+                </p>
+                <div class="socials">
+                        {
+                                socials.map((social) => (
+                                        <a
+                                                href={social.url}
+                                                target={social.target}
+                                                rel={
+                                                        social.target ===
+                                                        "_blank"
+                                                                ? "noopener noreferrer"
+                                                                : undefined
+                                                }
+                                                class="socials__link group"
+                                        >
+                                                <Icon
+                                                        name={social.icon}
+                                                        class="socials__icon"
+                                                />
+                                                <span class="socials__label">
+                                                        {social.name}
+                                                </span>
+                                                <RiArrowRightUpLine
+                                                        className="socials__arrow"
+                                                        aria-hidden="true"
+                                                />
+                                        </a>
+                                ))
+                        }
+                </div>
+        </div>
 
-  <section class="experience-section pt-10" id="experience">
-    <div class="experience-header">
-      <h2 class="font-serif">Work Experience</h2>
-    </div>
-    <div class="experience-list">
-      {
-        experiences.map((exp) => (
-          <article class="experience-item">
-            <img
-              class="experience-logo"
-              src={exp.icon}
-              alt={`${exp.company} logo`}
-              loading="lazy"
-            />
+        <section class="home-section" id="opensource">
+                <header class="section-header">
+                        <div class="section-header__text">
+                                <h2 class="section-heading">Open Source</h2>
+                                <p
+                                        class="about-copy about-copy--lead gap-1.5 font-normal tracking-tight"
+                                >
+                                        I spend a Lot of time working on Open Source Software.
+                                </p>
+                        </div>
 
-            <p class="experience-summary">
-              <strong>
-                {exp.company} - {exp.role}.
-              </strong>{" "}
-              {exp.summary}
-            </p>
-          </article>
-        ))
-      }
-    </div>
-  </section>
+                        <a
+                                class="section-action"
+                                href={withBase("opensource-log")}
+                        >
+                                <span>View my open source log</span>
+                                <RiArrowRightUpLine
+                                        className="section-action__icon"
+                                />
+                        </a>
+                </header>
+        </section>
 
-  <section class="home-section" id="projects">
-    <header class="section-header">
-      <div class="section-header__text">
-        <h2 class="section-heading">Projects</h2>
-        <p class="section-copy">
-          Focused builds across AI tools, terminal workflows, backend protocols,
-          and compiler internals.
-        </p>
-      </div>
+        <section class="experience-section pt-10" id="experience">
+                <div class="experience-header">
+                        <h2 class="font-serif">Work Experience</h2>
+                </div>
+                <div class="experience-list">
+                        {
+                                experiences.map((exp) => (
+                                        <article class="experience-item">
+                                                <img
+                                                        class="experience-logo"
+                                                        src={exp.icon}
+                                                        alt={`${exp.company} logo`}
+                                                        loading="lazy"
+                                                />
 
-      <a class="section-action" href={withBase("projects")}>
-        <span>View all projects</span>
-        <RiArrowRightUpLine className="section-action__icon" />
-      </a>
-    </header>
+                                                <p class="experience-summary">
+                                                        <strong>
+                                                                {exp.company} -{" "}
+                                                                {exp.role}.
+                                                        </strong>{" "}
+                                                        {exp.summary}
+                                                </p>
+                                        </article>
+                                ))
+                        }
+                </div>
+        </section>
 
-    <div class="projects-grid" aria-label="Featured projects">
-      {
-        featuredProjects.map((project) => (
-          <ProjectCard project={project} showDetails={false} />
-        ))
-      }
-    </div>
-  </section>
+        <section class="home-section" id="projects">
+                <header class="section-header">
+                        <div class="section-header__text">
+                                <h2 class="section-heading">Projects</h2>
+                                <p class="section-copy">
+                                        Focused builds across AI tools, terminal
+                                        workflows, backend protocols, and
+                                        compiler internals.
+                                </p>
+                        </div>
 
-  <section class="home-section" id="writing">
-    <header class="section-header">
-      <div class="section-header__text">
-        <h2 class="section-heading">Writing</h2>
-        <p class="section-copy">Articles on engineering and technology</p>
-      </div>
+                        <a class="section-action" href={withBase("projects")}>
+                                <span>View all projects</span>
+                                <RiArrowRightUpLine
+                                        className="section-action__icon"
+                                />
+                        </a>
+                </header>
 
-      <a class="section-action" href={withBase("blogs")}>
-        <span>View all writings</span>
-        <RiArrowRightUpLine className="section-action__icon" />
-      </a>
-    </header>
+                <div class="projects-grid" aria-label="Featured projects">
+                        {
+                                featuredProjects.map((project) => (
+                                        <ProjectCard
+                                                project={project}
+                                                showDetails={false}
+                                        />
+                                ))
+                        }
+                </div>
+        </section>
 
-    <div class="writing-list" aria-label="Featured writing">
-      {
-        writingPosts.map((post) => (
-          <a
-            class="writing-card"
-            href={post.link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <div class="writing-card__title-row">
-              <h3>{post.title}</h3>
-              <RiArrowRightUpLine
-                className="writing-card__external-icon"
-                aria-hidden="true"
-              />
-            </div>
-            <p class="writing-card__source">{post.source}</p>
-          </a>
-        ))
-      }
-    </div>
-  </section>
+        <section class="home-section" id="writing">
+                <header class="section-header">
+                        <div class="section-header__text">
+                                <h2 class="section-heading">Writing</h2>
+                                <p class="section-copy">
+                                        Articles on engineering and technology
+                                </p>
+                        </div>
 
-  <CommunityGrid client:load images={communityImages} />
+                        <a class="section-action" href={withBase("blogs")}>
+                                <span>View all writings</span>
+                                <RiArrowRightUpLine
+                                        className="section-action__icon"
+                                />
+                        </a>
+                </header>
+
+                <div class="writing-list" aria-label="Featured writing">
+                        {
+                                writingPosts.map((post) => (
+                                        <a
+                                                class="writing-card"
+                                                href={post.link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                        >
+                                                <div class="writing-card__title-row">
+                                                        <h3>{post.title}</h3>
+                                                        <RiArrowRightUpLine
+                                                                className="writing-card__external-icon"
+                                                                aria-hidden="true"
+                                                        />
+                                                </div>
+                                                <p class="writing-card__source">
+                                                        {post.source}
+                                                </p>
+                                        </a>
+                                ))
+                        }
+                </div>
+        </section>
+
+        <CommunityGrid client:load images={communityImages} />
 </Layout>
