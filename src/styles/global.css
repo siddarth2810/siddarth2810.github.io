@@ -6,8 +6,8 @@
 :root {
   /* Backgrounds */
   --bg: #f0ece0;
-  --surface: #e7dfcf;
-  --surface-strong: #dbd1bd;
+  --surface:#f0ece0;
+  --surface-strong: #f0ece0;
   /* Text */
   --fg: #0f1820;
   --ink: #0f1820;
@@ -19,8 +19,7 @@
   --color-secondary: #9b4a3c;
   --color-secondary-rgb: 155, 74, 60;
   /* Accent — deep burgundy wine */
-  --color-accent: #7a1c34;
-  --color-accent-rgb: 122, 28, 52;
+  --color-accent: #0f1820;
   /* Borders / Glow */
   --border-contrast: #0f1820;
   /* Type — unchanged */
@@ -45,13 +44,11 @@ html[data-theme="dark"] {
   --color-primary: #f0ece2;
   --color-primary-rgb: 240, 236, 226;
   /* Secondary — warm amber gold */
-  --color-secondary: #d4a07a;
-  --color-secondary-rgb: 212, 160, 122;
+  --color-secondary: #f0ece2;
   /* Accent — dusty rose */
-  --color-accent: #d4818e;
-  --color-accent-rgb: 212, 129, 142;
-  --surface: #1c2838;
-  --surface-strong: #263546;
+  --color-accent: #f0ece2;
+  --surface: #131c27;
+  --surface-strong: #131c27;
   --border-contrast: #f0ece2;
 }
 
@@ -76,8 +73,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-size: 1rem;
-  font-weight: 550;
+  font-size: 0.9rem;
   line-height: 1.65;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -545,7 +541,6 @@ html[data-theme="dark"] .theme-toggle__sun {
 .section-eyebrow {
   margin: 0 0 0.3rem;
   color: var(--muted);
-  font-family: var(--font-mono);
   font-size: 0.72rem;
   font-weight: 550;
   line-height: 1.4;
@@ -726,11 +721,62 @@ html[data-theme="dark"] .theme-toggle__sun {
 .project-card__tech {
   margin: 0.8rem 0 0;
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.5;
   overflow-wrap: anywhere;
+}
+
+/* ── Project page ────────────────────────────────────────────────────────── */
+.project-page {
+  width: 100%;
+}
+
+.project-page__header {
+  max-width: 43rem;
+  margin-bottom: 1.5rem;
+}
+
+.project-page__header h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-size: 2.65rem;
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.project-page__header p:last-child {
+  margin: 0.65rem 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.58;
+  text-wrap: pretty;
+}
+
+@media (max-width: 640px) {
+  .project-page__header {
+    margin-bottom: 1.25rem;
+  }
+
+  .project-page__header h1 {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .project-page__header h1 {
+    font-size: 2rem;
+    line-height: 1.08;
+  }
+
+  .project-page__header p:last-child {
+    font-size: 0.94rem;
+    line-height: 1.55;
+  }
 }
 
 /* ── Writing cards ───────────────────────────────────────────────────────── */
@@ -816,8 +862,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 .writing-card__source {
   margin: 0;
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -1123,7 +1168,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 
   .project-card__tech,
   .writing-card__source {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
     line-height: 1.45;
   }
 

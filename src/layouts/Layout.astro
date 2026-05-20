@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 import SiteNav from "../components/SiteNav.astro";
-import BottomBlur from "../components/ui/BottomBlur.astro";
 import { isBasePath } from "../util/site-paths";
 
 interface Props {
@@ -71,7 +70,6 @@ const isHomePage = isBasePath(currentPath);
       <footer class="text-muted mt-16 text-center text-sm">
         <p>&copy; 2026 Siddarth Gundu.</p>
       </footer>
-      <BottomBlur />
     </main>
     <script>
       import "../scripts/theme";
