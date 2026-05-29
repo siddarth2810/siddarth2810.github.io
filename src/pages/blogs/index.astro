@@ -42,8 +42,7 @@ const externalPosts = externalBlogs.map((blog) => ({
               <a href={withBase(`blogs/${post.slug}`)} class="blog-card__link">
                 <h2>{post.data.title}</h2>
                 <p class="blog-card__meta">
-                  {formatPostDate(post.data.pubDate)} · About {minutes} minute
-                  {minutes === 1 ? "" : "s"} long
+                  {formatPostDate(post.data.pubDate)} · About {minutes} minute{minutes === 1 ? "" : "s"} long
                 </p>
                 <p class="blog-card__summary">{getPostSummary(post)}</p>
                 {post.data.tags.length > 0 && (
