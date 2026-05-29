@@ -11,13 +11,11 @@
 }
 
 :root {
-        /*      --font-body: "Cormorant Garamond Variable", "Cormorant Garamond",*/
-        /*"EB Garamond", Garamond, Georgia, serif;*/
-        /**/
         /* Backgrounds */
         --bg: #f0ece0;
-        --surface: #f0ece0;
-        --surface-strong: #f0ece0;
+        --surface: #ede9de;
+        /* just a whisper darker */
+        --surface-strong: #e9e4d8;
         /* Text */
         --fg: #0f1820;
         --ink: #0f1820;
@@ -30,6 +28,7 @@
         --color-secondary-rgb: 155, 74, 60;
         /* Accent — deep burgundy wine */
         --color-accent: #0f1820;
+        --color-accent-rgb: 15, 24, 32;
         /* Borders / Glow */
         --border-contrast: #0f1820;
         /* Type — unchanged */
@@ -47,19 +46,25 @@
 }
 
 html[data-theme="dark"] {
-        --bg: #131c27;
-        --fg: #f0ece2;
-        --ink: #f0ece2;
+        --bg: #0F1419;
+        --fg: #c5c5c5;
+        --ink: #d4cfc5;
+        /* was #f0ece2 — toned down ~15% */
         --muted: #a8a299;
-        --color-primary: #f0ece2;
-        --color-primary-rgb: 240, 236, 226;
-        /* Secondary — warm amber gold */
-        --color-secondary: #f0ece2;
-        /* Accent — dusty rose */
-        --color-accent: #f0ece2;
-        --surface: #131c27;
-        --surface-strong: #131c27;
-        --border-contrast: #f0ece2;
+        --color-primary: #d4cfc5;
+        /* was #f0ece2 — matches ink */
+        --color-primary-rgb: 212, 207, 197;
+        /* updated to match */
+        --color-secondary: #d4cfc5;
+        /* was #f0ece2 */
+        --color-accent: #d4cfc5;
+        /* was #f0ece2 */
+        --color-accent-rgb: 212, 207, 197;
+        /* updated to match */
+        --surface: #14191f;
+        --surface-strong: #14191f;
+        --border-contrast: #d4cfc5;
+        /* was #f0ece2 */
 }
 
 
@@ -105,8 +110,8 @@ strong {
 }
 
 ::selection {
-        background-color: rgba(var(--color-accent-rgb), 0.25);
-        color: var(--ink);
+        background-color: var(--color-accent);
+        color: var(--bg);
 }
 
 .text-muted {
@@ -185,7 +190,6 @@ body>main {
         cursor: pointer;
         color: var(--color-primary);
         list-style: none;
-        user-select: none;
 }
 
 .site-nav__menu-summary::-webkit-details-marker {
