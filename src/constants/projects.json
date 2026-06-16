@@ -37,12 +37,12 @@
   },
   {
     "id": 5,
-    "slug": "2D Game",
-    "title": "Blast-box",
-    "description": "A real-time multiplayer game inspired from the game diep.io.",
-    "tech": ["JavaScript", "Web Sockets"],
-    "badges": ["Systems", "Compiler"],
-    "link": "https://github.com/siddarth2810/blast-box"
+    "slug": "AI",
+    "title": "Claude Code Instrumentation",
+    "description": "Hooks based instrumentation for Claude-code using Grafana tempo",
+    "tech": ["Go", "AI observability", "Grafana Tempo"],
+    "badges": ["", ""],
+    "link": "https://github.com/siddarth2810/claude-code-instrumentation"
   },
   {
     "id": 6,
@@ -73,6 +73,33 @@
   },
   {
     "id": 9,
+    "slug": "2D Game",
+    "title": "Blast-box",
+    "description": "A real-time multiplayer game inspired from the game diep.io.",
+    "tech": ["JavaScript", "Web Sockets"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/blast-box"
+  },
+  {
+    "id": 10,
+    "slug": "DevTool",
+    "title": "Odin-Md",
+    "description": "TUI based Markdown file Previewer",
+    "tech": ["OpenTUI", "TypeScript"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/Odin"
+  },
+  {
+    "id": 11,
+    "slug": "DevTool",
+    "title": "Multithreaded Web Server",
+    "description": "A simple HTTP server that handles multiple requests concurrently using a thread pool",
+    "tech": ["Rust"],
+    "badges": ["Systems", "Compiler"],
+    "link": "https://github.com/siddarth2810/Multi-threaded-Web-Server"
+  },
+  {
+    "id": 12,
     "slug": "DevOps",
     "title": "Daily Planner",
     "description": "A simple Daily Planner deployed on Kubernetes cluster",
