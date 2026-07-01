@@ -106,5 +106,3 @@ Parquet columns
 ```
 
 The use of Parquet in observability was inspired from Shopify's engineering team. This video is really cool ! [Deep dive into long term metrics for planet-scale commerce, with Filip Petkovski](https://youtu.be/V8Y4VuUwg8I?si=b-eoa9XWosFyP-I_)
-
-Fun fact: ClickHouse too uses columnar format under the hood :)

@@ -7,11 +7,17 @@ export type Experience = {
 
 export const experiences: Experience[] = [
         {
+                company: "Cortex (CNCF Incubating)",
+                icon: "/cortex.svg",
+                role: "Triage Team",
+                summary: "Part of Cortex team as triager, collaborating with Cortex maintainers on reviews, issue triage, and improvements.",
+        },
+        {
                 company: "Tower Cloud",
-                icon: "/tower.webp",
+                icon: "/tower.svg",
                 role: "Software Engineer",
                 summary:
-                        "Built entire observability stack across the platform. Redesigned auth flows with Keycloak JWT verification, deployed Percona DBs on Kubernetes, and automated backup and restore workflows.",
+                        "Built entire observability stack across the platform. Improved auth flows with Keycloak JWT verification, deployed Percona DBs on Kubernetes, and automated backup and restore workflows.",
         },
         {
                 company: "The Linux Foundation",

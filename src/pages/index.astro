@@ -8,11 +8,8 @@ import CommunityGrid from "../components/CommunityGrid";
 import { Icon } from "astro-icon/components";
 import { RiArrowRightUpLine } from "react-icons/ri";
 import { experiences } from "../constants/experiences";
-import { getCommunityImages } from "../util/community-images";
 import { getHostname } from "../util/external-links";
 import { withBase } from "../util/site-paths";
-
-const communityImages = await getCommunityImages();
 
 const socials = socialData;
 const featuredProjects = projects.slice(0, 3);
@@ -28,41 +25,6 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
       Siddarth Gundu
     </h1>
     <div class="flex items-center gap-1.5 font-normal tracking-tight"></div>
-    <p class="about-copy about-copy--lead">
-      Hi there, I'm a software engineer from <span class="text-title">
-        Hyderabad, India
-      </span>. I work on backend, observability, and open-source systems. I
-      contribute to
-      <a
-        href="https://github.com/cortexproject/cortex"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Cortex Metrics,
-      </a>
-      the Linux kernel, and previously built observability infrastructure at
-      <a
-        href="https://tower.cloud/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Tower Cloud.
-      </a>
-    </p>
-    <p class="about-copy">
-      I run a Ubuntu setup with i3WM, check out my
-      <a
-        href="https://github.com/siddarth2810/.dotfiles"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-primary hover:underline underline-offset-4"
-      >
-        Dotfiles
-      </a>
-      :)
-    </p>
     <div class="socials">
       {
         socials.map((social) => (
@@ -79,6 +41,34 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
         ))
       }
     </div>
+
+    <p class="about-copy about-copy--lead">
+Hi there, I'm an engineer and I work across infra, frontend and backend systems. I
+                contribute to
+
+                                <a
+                        href="https://github.com/cortexproject/cortex"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary hover:underline underline-offset-4"
+                >
+                        Cortex (CNCF Incubating),
+                </a>
+                the Linux kernel and other open source systems.
+    </p>
+
+    <!-- <p class="about-copy"> -->
+    <!--   I run a Ubuntu setup with i3WM, check out my -->
+    <!--   <a -->
+    <!--     href="https://github.com/siddarth2810/.dotfiles" -->
+    <!--     target="_blank" -->
+    <!--     rel="noopener noreferrer" -->
+    <!--     class="text-primary hover:underline underline-offset-4" -->
+    <!--   > -->
+    <!--     Dotfiles -->
+    <!--   </a> -->
+    <!--   :) -->
+    <!-- </p> -->
   </div>
 
   <section class="home-section" id="opensource">
@@ -101,7 +91,7 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
 
   <section class="experience-section pt-10" id="experience">
     <div class="experience-header">
-      <h2 class="font-serif">Work Experience</h2>
+      <h2 class="font-serif">Experience</h2>
     </div>
     <div class="experience-list">
       {
@@ -186,5 +176,5 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
     </div>
   </section>
 
-  <CommunityGrid client:load images={communityImages} />
+  <CommunityGrid client:load />
 </Layout>

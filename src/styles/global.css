@@ -2,6 +2,7 @@
 @import "@fontsource-variable/cormorant-garamond/wght-italic.css";
 @import "@fontsource-variable/newsreader/wght.css";
 @import "@fontsource-variable/newsreader/wght-italic.css";
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 
 @font-face {
         font-family: "Satoshi";
@@ -12,10 +13,11 @@
 
 :root {
         /* Backgrounds */
-        --bg: #f0ece0;
-        --surface: #ede9de;
+        --bg: #F4F2EB;
+        --surface: #F4F2EB;
         /* just a whisper darker */
-        --surface-strong: #e9e4d8;
+        --surface-strong: #F4F2EB;
+        --redish: #af005f;
         /* Text */
         --fg: #0f1820;
         --ink: #0f1820;
@@ -24,7 +26,7 @@
         --color-primary: #0f1820;
         --color-primary-rgb: 15, 24, 32;
         /* Secondary — warm terracotta */
-        --color-secondary: #9b4a3c;
+        --color-secondary: #C9413A;
         --color-secondary-rgb: 155, 74, 60;
         /* Accent — deep burgundy wine */
         --color-accent: #0f1820;
@@ -34,9 +36,8 @@
         /* Type — unchanged */
         --font-body: "Satoshi", "Cormorant Garamond Variable", "Cormorant Garamond",
                 "EB Garamond", Garamond, Georgia, serif;
-        --font-heading: "Cormorant Garamond Variable", "Cormorant Garamond",
-                "EB Garamond", Garamond, Georgia, serif;
-        --font-alt-heading: "Newsreader Variable", "Newsreader", Georgia, serif;
+        --font-heading: "Source Serif 4", serif;
+        --font-alt-heading: "Source Serif 4", serif;
         --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
                 "Liberation Mono", "Courier New", monospace;
         --font-sans: var(--font-body);
@@ -48,7 +49,7 @@
 html[data-theme="dark"] {
         --bg: #0F1419;
         --fg: #c5c5c5;
-        --ink: #d4cfc5;
+        --ink: #c5c5c5;
         /* was #f0ece2 — toned down ~15% */
         --muted: #a8a299;
         --color-primary: #d4cfc5;
@@ -61,7 +62,7 @@ html[data-theme="dark"] {
         /* was #f0ece2 */
         --color-accent-rgb: 212, 207, 197;
         /* updated to match */
-        --surface: #14191f;
+        --surface: #0F1419;
         --surface-strong: #14191f;
         --border-contrast: #d4cfc5;
         /* was #f0ece2 */
@@ -106,7 +107,7 @@ h2,
 h3,
 h4,
 strong {
-        font-weight: 700;
+        font-weight: 500;
 }
 
 ::selection {
@@ -338,7 +339,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         margin: 0;
         color: var(--fg);
         font-size: 1.1rem;
-        font-weight: 400;
+        font-weight: 450;
         line-height: 1.72;
         overflow-wrap: break-word;
         text-wrap: pretty;
@@ -383,7 +384,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         color: var(--ink);
         font-family: var(--font-serif);
         font-size: 1.7rem;
-        font-weight: 700;
+        font-weight: 500;
         line-height: 1.1;
         letter-spacing: -0.01em;
 }
@@ -403,23 +404,12 @@ html[data-theme="dark"] .theme-toggle__sun {
 }
 
 .experience-logo {
-        width: 2.75rem;
-        height: 2.75rem;
+        width: 3rem;
+        height: 3rem;
         flex: 0 0 2.75rem;
-        border-radius: 0.9rem;
-        border: 1px solid rgba(var(--color-primary-rgb), 0.12);
-        background: rgba(255, 255, 255, 0.76);
         object-fit: contain;
         padding: 0.35rem;
         margin-top: 0.15rem;
-        transition:
-                transform 200ms ease,
-                box-shadow 200ms ease;
-}
-
-.experience-item:hover .experience-logo {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .experience-summary {
@@ -428,7 +418,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         margin: 0;
         color: var(--fg);
         font-size: 1.06rem;
-        font-weight: 400;
+        font-weight: 450;
         line-height: 1.65;
         overflow-wrap: break-word;
         text-wrap: pretty;
@@ -452,7 +442,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         flex-wrap: wrap;
         align-items: center;
         gap: 0.35rem 0.9rem;
-        padding-top: 0.65rem;
+        padding-top: 0.5rem;
 }
 
 .socials__link {
@@ -462,7 +452,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         align-items: center;
         gap: 0.4rem;
         color: var(--ink);
-        font-weight: 400;
+        font-weight: 450;
         line-height: 1.7;
         text-decoration: none;
         text-underline-offset: 3px;
@@ -556,7 +546,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         margin: 0 0 0.3rem;
         color: var(--muted);
         font-size: 0.72rem;
-        font-weight: 400;
+        font-weight: 450;
         line-height: 1.4;
         text-transform: uppercase;
 }
@@ -582,7 +572,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         color: var(--ink);
         padding: 0.42rem 0.8rem;
         font-size: 0.88rem;
-        font-weight: 580;
+        font-weight: 500;
         line-height: 1.2;
         text-decoration: none;
         transition:
@@ -706,7 +696,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         color: var(--ink);
         font-family: var(--project-card-title-font);
         font-size: 1.3rem;
-        font-weight: 700;
+        font-weight: 500;
         line-height: 1.25;
         letter-spacing: -0.01em;
 }
@@ -756,7 +746,6 @@ html[data-theme="dark"] .theme-toggle__sun {
         color: var(--ink);
         font-family: var(--font-heading);
         font-size: 2.65rem;
-        font-weight: 600;
         line-height: 1.04;
         letter-spacing: 0;
         text-wrap: balance;
@@ -835,7 +824,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         margin: 0;
         color: var(--ink);
         font-size: 1.14rem;
-        font-weight: 680;
+        font-weight: 500;
         line-height: 1.28;
         letter-spacing: -0.005em;
         overflow-wrap: break-word;
@@ -926,7 +915,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 .community-section__image {
         display: block;
         width: 100%;
-        height: 100%;
+        height: 18rem;
         aspect-ratio: 4 / 3;
         object-fit: cover;
         transition: transform 400ms ease;
@@ -970,7 +959,7 @@ html[data-theme="dark"] .theme-toggle__sun {
         color: var(--ink);
         font-family: var(--font-heading);
         font-size: 1.22rem;
-        font-weight: 700;
+        font-weight: 500;
         line-height: 1.25;
         letter-spacing: -0.005em;
         text-wrap: balance;
@@ -1018,11 +1007,7 @@ html[data-theme="dark"] .theme-toggle__sun {
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (min-width: 640px) {
-        .community-section__gallery {
-                flex-direction: row;
-        }
-}
+
 
 @media (max-width: 767px) {
         .bodyy {
@@ -1044,9 +1029,9 @@ html[data-theme="dark"] .theme-toggle__sun {
 
         .about-copy,
         .experience-summary {
+                padding-top: 30px;
                 font-size: 1.12rem;
                 line-height: 1.68;
-                text-align: justify;
         }
 
         .home-title,
@@ -1123,7 +1108,6 @@ html[data-theme="dark"] .theme-toggle__sun {
                 flex-wrap: wrap;
                 align-items: baseline;
                 gap: 0.25rem 0.85rem;
-                padding-top: 0.5rem;
         }
 
         .socials__link {
