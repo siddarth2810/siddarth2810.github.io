@@ -4,9 +4,8 @@ Use this guide for changes under `src`.
 
 ## Routes And Layout
 
-- Keep shared navigation and theme behavior in `src/layouts/Layout.astro`, `src/components/SiteNav.astro`, `src/components/ui/ThemeToggle.astro`, and `src/scripts/theme.ts`.
-- Use `src/util/site-paths.ts` for links that need to respect Astro's configured base path.
-- Use `src/util/external-links.ts` for external URL detection or hostname labels.
+- Keep shared navigation and theme behavior in `src/layouts/Layout.astro`, `src/components/SiteNav.astro`, and `src/components/ui/ThemeToggle.astro`.
+- Use `src/util/url.ts` for links that need to respect Astro's configured base path, external URL detection, or hostname labels.
 - Keep page-specific prose and section order inside the route file that renders it.
 
 ## Components
@@ -18,7 +17,8 @@ Use this guide for changes under `src`.
 ## Data And Utilities
 
 - Put reusable data in `src/constants`.
-- Put browser/server helpers in `src/util` and page scripts in `src/scripts`.
+- Keep one-off route data in the route file instead of creating a new constants module.
+- Put browser/server helpers in `src/util`.
 - Keep scripts idempotent across Astro view transitions because they can survive client-side navigation.
 
 ## Content Collection Notes

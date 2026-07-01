@@ -5,15 +5,23 @@ import projects from "../../constants/projects.json";
 ---
 
 <Layout title="Siddarth Gundu • projects">
-  <section class="project-page">
-    <header class="project-page__header">
-      <h1>Projects & Experiments</h1>
-      <p>A List of projects and learning experiments</p>
+  <section class="project-page w-full">
+    <header class="project-page__header mb-6 max-w-[43rem]">
+      <h1
+        class="m-0 text-balance font-heading text-[2.25rem] leading-tight text-title sm:text-[2.65rem]"
+      >
+        Projects & Experiments
+      </h1>
+      <p class="m-0 mt-3 text-base leading-7 text-muted">
+        A List of projects and learning experiments
+      </p>
     </header>
 
-    <div class="projects-grid" aria-label="Projects">
+    <div
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      aria-label="Projects"
+    >
       {projects.map((project) => <ProjectCard project={project} />)}
     </div>
   </section>
 </Layout>
-

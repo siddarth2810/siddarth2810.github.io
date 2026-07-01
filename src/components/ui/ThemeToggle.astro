@@ -12,3 +12,80 @@ import { MdOutlineDarkMode, MdOutlineLightMode } from "react-icons/md";
   <MdOutlineDarkMode className="theme-toggle__moon" aria-hidden="true" />
   <MdOutlineLightMode className="theme-toggle__sun" aria-hidden="true" />
 </button>
+
+<script>
+  type Theme = "dark" | "light";
+
+  const themeWindow = window as Window & {
+    __themeControlsBound?: boolean;
+  };
+
+  const isTheme = (value: string | null | undefined): value is Theme =>
+    value === "dark" || value === "light";
+
+  const getPreferredTheme = (): Theme => {
+    const storedTheme = localStorage.getItem("theme");
+    if (isTheme(storedTheme)) {
+      return storedTheme;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  };
+
+  const getCurrentTheme = (): Theme => {
+    const currentTheme = document.documentElement.dataset.theme;
+    return isTheme(currentTheme) ? currentTheme : getPreferredTheme();
+  };
+
+  const applyTheme = (
+    theme: Theme,
+    root: HTMLElement = document.documentElement,
+  ) => {
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+  };
+
+  const updateThemeToggleLabels = (theme: Theme) => {
+    document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
+      const nextTheme = theme === "dark" ? "light" : "dark";
+      toggle.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
+    });
+  };
+
+  const setTheme = (theme: Theme) => {
+    applyTheme(theme);
+    localStorage.setItem("theme", theme);
+    updateThemeToggleLabels(theme);
+  };
+
+  const syncThemeControls = () => {
+    applyTheme(getPreferredTheme());
+    updateThemeToggleLabels(getCurrentTheme());
+  };
+
+  const handleBeforeSwap = (event: Event) => {
+    const { newDocument } = event as Event & { newDocument: Document };
+    applyTheme(getCurrentTheme(), newDocument.documentElement);
+  };
+
+  const handleThemeToggleClick = (event: MouseEvent) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const toggle = target.closest("[data-theme-toggle]");
+    if (!toggle) return;
+
+    setTheme(getCurrentTheme() === "dark" ? "light" : "dark");
+  };
+
+  syncThemeControls();
+
+  if (!themeWindow.__themeControlsBound) {
+    themeWindow.__themeControlsBound = true;
+    document.addEventListener("astro:page-load", syncThemeControls);
+    document.addEventListener("astro:before-swap", handleBeforeSwap);
+    document.addEventListener("click", handleThemeToggleClick);
+  }
+</script>

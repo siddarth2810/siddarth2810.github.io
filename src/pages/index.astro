@@ -5,11 +5,15 @@ import projects from "../constants/projects.json";
 import writingPostsData from "../constants/blogs.json";
 import ProjectCard from "../components/ui/ProjectCard.astro";
 import CommunityGrid from "../components/CommunityGrid";
-import { Icon } from "astro-icon/components";
 import { RiArrowRightUpLine } from "react-icons/ri";
-import { experiences } from "../constants/experiences";
-import { getHostname } from "../util/external-links";
-import { withBase } from "../util/site-paths";
+import { getHostname, withBase } from "../util/url";
+
+type Experience = {
+  company: string;
+  icon: string;
+  role: string;
+  summary: string;
+};
 
 const socials = socialData;
 const featuredProjects = projects.slice(0, 3);
@@ -17,14 +21,38 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
   ...post,
   source: getHostname(post.link),
 }));
+const experiences: Experience[] = [
+  {
+    company: "Cortex (CNCF Incubating)",
+    icon: "/icons/cortex.svg",
+    role: "Triage Team",
+    summary:
+      "Part of Cortex team as triager, collaborating with Cortex maintainers on reviews, issue triage, and improvements.",
+  },
+  {
+    company: "Tower Cloud",
+    icon: "/icons/tower.svg",
+    role: "Software Engineer",
+    summary:
+      "Built entire observability stack across the platform. Improved auth flows with Keycloak JWT verification, deployed Percona DBs on Kubernetes, and automated backup and restore workflows.",
+  },
+  {
+    company: "The Linux Foundation",
+    icon: "/icons/linux_foundation.webp",
+    role: "Linux Kernel Mentee",
+    summary:
+      "Contributed patches to the upstream Linux kernel while working with maintainers.",
+  },
+];
 ---
 
 <Layout title="Siddarth Gundu">
   <div>
-    <h1 class="home-title text-primary font-serif text-[2.5rem] tracking-tight">
+    <h1
+      class="home-title m-0 text-balance font-serif text-[2.25rem] leading-[1.05] text-primary sm:text-[2.5rem]"
+    >
       Siddarth Gundu
     </h1>
-    <div class="flex items-center gap-1.5 font-normal tracking-tight"></div>
     <div class="socials">
       {
         socials.map((social) => (
@@ -34,7 +62,11 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
             rel={social.target === "_blank" ? "noopener noreferrer" : undefined}
             class="socials__link group"
           >
-            <Icon name={social.icon} class="socials__icon" />
+            <img
+              src={`/icons/${social.icon}.svg`}
+              alt={`${social.name} icon`}
+              class="socials__icon"
+            />
             <span class="socials__label">{social.name}</span>
             <RiArrowRightUpLine className="socials__arrow" aria-hidden="true" />
           </a>
@@ -42,69 +74,65 @@ const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
       }
     </div>
 
-    <p class="about-copy about-copy--lead">
-Hi there, I'm an engineer and I work across infra, frontend and backend systems. I
-                contribute to
-
-                                <a
-                        href="https://github.com/cortexproject/cortex"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-primary hover:underline underline-offset-4"
-                >
-                        Cortex (CNCF Incubating),
-                </a>
-                the Linux kernel and other open source systems.
+    <p class="about-copy m-0 mt-8 text-lg leading-8 sm:mt-3">
+      Hi there, I'm an engineer and I work across infra, frontend and backend
+      systems. I contribute to
+      <a
+        href="https://github.com/cortexproject/cortex"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Cortex (CNCF Incubating),
+      </a>
+      the Linux kernel and other open source systems.
     </p>
-
-    <!-- <p class="about-copy"> -->
-    <!--   I run a Ubuntu setup with i3WM, check out my -->
-    <!--   <a -->
-    <!--     href="https://github.com/siddarth2810/.dotfiles" -->
-    <!--     target="_blank" -->
-    <!--     rel="noopener noreferrer" -->
-    <!--     class="text-primary hover:underline underline-offset-4" -->
-    <!--   > -->
-    <!--     Dotfiles -->
-    <!--   </a> -->
-    <!--   :) -->
-    <!-- </p> -->
   </div>
 
-  <section class="home-section" id="opensource">
-    <header class="section-header">
-      <div class="section-header__text">
-        <h2 class="section-heading">Open Source</h2>
-        <p
-          class="about-copy about-copy--lead gap-1.5 font-normal tracking-tight"
+  <section class="mt-12 md:mt-14" id="opensource">
+    <header
+      class="section-header mb-5 flex flex-col gap-3 sm:gap-5 md:flex-row md:items-end md:justify-between"
+    >
+      <div class="max-w-[38rem]">
+        <h2
+          class="section-heading m-0 font-serif text-2xl leading-tight text-title"
         >
-          I spend a lot of time working on Open Source Software.
+          Open Source
+        </h2>
+        <p class="section-copy m-0 mt-2 text-base leading-7">
+          I spend a lot of time working on open source.
         </p>
       </div>
 
-      <a class="section-action" href={withBase("opensource-log")}>
+      <a
+        class="section-action inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm leading-5"
+        href={withBase("opensource-log")}
+      >
         <span>View my open source log</span>
-        <RiArrowRightUpLine className="section-action__icon" />
+        <RiArrowRightUpLine className="section-action__icon h-4 w-4 shrink-0" />
       </a>
     </header>
   </section>
 
-  <section class="experience-section pt-10" id="experience">
+  <section class="mt-12 md:mt-14" id="experience">
     <div class="experience-header">
-      <h2 class="font-serif">Experience</h2>
+      <h2
+        class="section-heading m-0 font-serif text-2xl leading-tight text-title"
+      >
+        Experience
+      </h2>
     </div>
-    <div class="experience-list">
+    <div class="experience-list mt-5 flex flex-col gap-7">
       {
         experiences.map((exp) => (
-          <article class="experience-item">
+          <article class="experience-item flex items-start gap-4">
             <img
-              class="experience-logo"
+              class="experience-logo mt-0.5 hidden h-12 w-12 shrink-0 object-contain p-1.5 md:block"
               src={exp.icon}
               alt={`${exp.company} logo`}
               loading="lazy"
             />
 
-            <p class="experience-summary">
+            <p class="experience-summary m-0 min-w-0 flex-1 text-lg leading-8">
               <strong>
                 {exp.company} - {exp.role}.
               </strong>{" "}
@@ -116,21 +144,34 @@ Hi there, I'm an engineer and I work across infra, frontend and backend systems.
     </div>
   </section>
 
-  <section class="home-section" id="projects">
-    <header class="section-header">
-      <div class="section-header__text">
-        <h2 class="section-heading">Projects</h2>
-        <p class="about-copy about-copy--lead gap-1.5 font-normal tracking-tight"
-                                >Projects I've shipped</p>
+  <section class="mt-12 md:mt-14" id="projects">
+    <header
+      class="section-header mb-5 flex flex-col gap-3 sm:gap-5 md:flex-row md:items-end md:justify-between"
+    >
+      <div class="max-w-[38rem]">
+        <h2
+          class="section-heading m-0 font-serif text-2xl leading-tight text-title"
+        >
+          Projects
+        </h2>
+        <p class="section-copy m-0 mt-2 text-base leading-7">
+          Projects I've shipped.
+        </p>
       </div>
 
-      <a class="section-action" href={withBase("projects")}>
+      <a
+        class="section-action inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm leading-5"
+        href={withBase("projects")}
+      >
         <span>View all projects</span>
-        <RiArrowRightUpLine className="section-action__icon" />
+        <RiArrowRightUpLine className="section-action__icon h-4 w-4 shrink-0" />
       </a>
     </header>
 
-    <div class="projects-grid" aria-label="Featured projects">
+    <div
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      aria-label="Featured projects"
+    >
       {
         featuredProjects.map((project) => (
           <ProjectCard project={project} showDetails={false} />
@@ -139,37 +180,52 @@ Hi there, I'm an engineer and I work across infra, frontend and backend systems.
     </div>
   </section>
 
-  <section class="home-section" id="writing">
-    <header class="section-header">
-      <div class="section-header__text">
-        <h2 class="section-heading">Writing</h2>
-        <p class="about-copy about-copy--lead gap-1.5 font-normal tracking-tight"
-                                >Articles on engineering and technology</p>
+  <section class="mt-12 md:mt-14" id="writing">
+    <header
+      class="section-header mb-5 flex flex-col gap-3 sm:gap-5 md:flex-row md:items-end md:justify-between"
+    >
+      <div class="max-w-[38rem]">
+        <h2
+          class="section-heading m-0 font-serif text-2xl leading-tight text-title"
+        >
+          Writing
+        </h2>
+        <p class="section-copy m-0 mt-2 text-base leading-7">
+          Articles on engineering and technology.
+        </p>
       </div>
 
-      <a class="section-action" href={withBase("blogs")}>
+      <a
+        class="section-action inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm leading-5"
+        href={withBase("blogs")}
+      >
         <span>View all writings</span>
-        <RiArrowRightUpLine className="section-action__icon" />
+        <RiArrowRightUpLine className="section-action__icon h-4 w-4 shrink-0" />
       </a>
     </header>
 
-    <div class="writing-list" aria-label="Featured writing">
+    <div
+      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      aria-label="Featured writing"
+    >
       {
         writingPosts.map((post) => (
           <a
-            class="writing-card"
+            class="writing-card flex min-h-0 flex-col justify-between gap-4 p-4 sm:min-h-36 sm:p-5"
             href={post.link}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div class="writing-card__title-row">
-              <h3>{post.title}</h3>
+            <div class="writing-card__title-row flex items-start justify-between gap-3">
+              <h3 class="m-0 text-xl leading-snug">{post.title}</h3>
               <RiArrowRightUpLine
-                className="writing-card__external-icon"
+                className="writing-card__external-icon h-4 w-4 shrink-0"
                 aria-hidden="true"
               />
             </div>
-            <p class="writing-card__source">{post.source}</p>
+            <p class="writing-card__source m-0 text-sm leading-6">
+              {post.source}
+            </p>
           </a>
         ))
       }

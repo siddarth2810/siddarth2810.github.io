@@ -1,6 +1,6 @@
 ---
 import { RiArrowRightUpLine } from "react-icons/ri";
-import { isExternalUrl } from "../../util/external-links";
+import { isExternalUrl } from "../../util/url";
 
 type Project = {
   title: string;
@@ -20,28 +20,41 @@ const isExternal = isExternalUrl(project.link);
 ---
 
 <a
-  class:list={["project-card", !showDetails && "project-card--compact"]}
+  class:list={[
+    "project-card relative flex w-full min-w-0 flex-col overflow-hidden",
+    !showDetails && "project-card--compact",
+  ]}
   href={project.link}
   target={isExternal ? "_blank" : undefined}
   rel={isExternal ? "noopener noreferrer" : undefined}
   aria-label={`View ${project.title}`}
 >
   <RiArrowRightUpLine
-    className="project-card__external-icon"
+    className="project-card__external-icon absolute right-4 top-4 h-4 w-4"
     aria-hidden="true"
   />
 
-  <div class="project-card__body">
-    <h3 class="project-card__title">{project.title}</h3>
+  <div class="project-card__body flex flex-col gap-2 p-4 pr-11 sm:p-5 sm:pr-12">
+    <h3
+      class="project-card__title m-0 font-heading text-xl leading-snug text-title"
+    >
+      {project.title}
+    </h3>
 
-    <p class="project-card__description">{project.description}</p>
+    <p class="project-card__description m-0 text-base leading-7">
+      {project.description}
+    </p>
 
     {
       showDetails && project.details && (
-        <p class="project-card__details">{project.details}</p>
+        <p class="project-card__details m-0 mt-2 text-base leading-7">
+          {project.details}
+        </p>
       )
     }
 
-    <p class="project-card__tech">Tech: {project.tech.join(", ")}</p>
+    <p class="project-card__tech m-0 mt-3 text-sm leading-6">
+      Tech: {project.tech.join(", ")}
+    </p>
   </div>
 </a>

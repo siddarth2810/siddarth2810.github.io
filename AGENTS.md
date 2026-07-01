@@ -15,7 +15,7 @@ This is an Astro portfolio site using Astro pages, React islands, Tailwind, MDX 
 - `src/styles/global.css` owns design tokens and shared component styles. Prefer extending existing CSS variables over adding page-local color systems.
 - `src/content/blog` contains filesystem-backed MDX posts. Do not hardcode new local posts in page code.
 - `src/constants/blogs.json`, `src/constants/projects.json`, and `src/constants/socials.json` are data files for external writing, project cards, and social links.
-- `public/community` is scanned automatically for community images by `src/util/community-images.ts`.
+- `public/community` contains community images referenced by `src/components/CommunityGrid.tsx`.
 
 ## Guardrails
 
