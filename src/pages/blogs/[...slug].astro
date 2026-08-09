@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
-import { formatPostDate, getReadingTime } from "../../util/blog";
+import { formatPostDate, getPostSummary, getReadingTime } from "../../util/blog";
 
 type BlogPost = CollectionEntry<"blog">;
 
@@ -27,22 +27,29 @@ const { Content } = await post.render();
 const minutes = getReadingTime(post);
 ---
 
-<Layout title={`${post.data.title} • Siddarth Gundu`}>
+<Layout
+  title={`${post.data.title} • Siddarth Gundu`}
+  description={getPostSummary(post)}
+  type="article"
+  publishedAt={post.data.pubDate}
+>
   <div class="blog-post-shell">
-    <article class="blog-post" data-pagefind-body>
+    <article class="blog-post">
       <header class="blog-post__header" id="blog-hero">
-        <h1>{post.data.title}</h1>
-        <p class="blog-post__meta">
+        <h1 class="type-m-600">{post.data.title}</h1>
+        <p class="blog-post__meta type-s-500 type-tnum">
           Siddarth Gundu - {formatPostDate(post.data.pubDate)} · {minutes} min read
         </p>
         {
           post.data.description && (
-            <p class="blog-post__description">{post.data.description}</p>
+            <p class="blog-post__description type-m-500">
+              {post.data.description}
+            </p>
           )
         }
       </header>
 
-      <div class="blog-prose">
+      <div class="blog-prose type-prose">
         <Content />
       </div>
     </article>
@@ -69,12 +76,6 @@ const minutes = getReadingTime(post);
           stroke-linejoin="round"></path>
       </svg>
     </button>
-
-    <div class="blog-post__divider" aria-hidden="true">
-      <span></span>
-      <i></i>
-      <span></span>
-    </div>
   </div>
 
   <script>

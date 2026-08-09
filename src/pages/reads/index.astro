@@ -1,18 +1,22 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import ReadsList from "../../components/ReadsList";
+import ReadsList from "../../components/ReadsList.astro";
+import { getReadingGroups } from "../../util/google-sheet";
 
-const googleSheetId = import.meta.env.PUBLIC_GOOGLE_SHEET_ID ?? "";
+const groups = await getReadingGroups();
 ---
 
-<Layout title="Siddarth Gundu • reads">
+<Layout
+  title="Siddarth Gundu • reads"
+  description="Books, articles and videos on systems, infrastructure and open source that I found worth keeping."
+>
   <div class="reads-page max-w-2xl">
-    <h1 class="reads-page__title">Reads</h1>
-    <h2 class="reads-page__intro">
+    <h1 class="reads-page__title type-h1">Reads</h1>
+    <h2 class="reads-page__intro type-m-500">
       Collection books, articles and videos I really loved or found useful.
       Note: I haven't finished some of these books yet.
     </h2>
 
-    <ReadsList client:load googleSheetId={googleSheetId} />
+    <ReadsList groups={groups} />
   </div>
 </Layout>

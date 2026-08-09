@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { RiArrowRightUpLine } from "react-icons/ri";
+import Icon from "../../components/ui/Icon.astro";
 import { getCollection } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import externalBlogs from "../../constants/blogs.json";
@@ -10,7 +10,7 @@ import {
   getReadingTime,
   sortPostsByDate,
 } from "../../util/blog";
-import { getHostname, withBase } from "../../util/url";
+import { getHostname } from "../../util/url";
 
 type BlogPost = CollectionEntry<"blog">;
 
@@ -24,11 +24,14 @@ const externalPosts = externalBlogs.map((blog) => ({
 }));
 ---
 
-<Layout title="Siddarth Gundu">
+<Layout
+  title="Writing • Siddarth Gundu"
+  description="Notes on systems, open source, and infrastructure."
+>
   <section class="blog-index">
     <header class="blog-index__header">
-      <h1>Writings</h1>
-      <p>Notes on systems, open source, infrastructure.</p>
+      <h1 class="type-h1">Writings</h1>
+      <p class="type-m-500">Notes on systems, open source, infrastructure.</p>
     </header>
 
     <div class="blog-list" aria-label="Local blog posts">
@@ -39,16 +42,18 @@ const externalPosts = externalBlogs.map((blog) => ({
 
           return (
             <article class="blog-card">
-              <a href={withBase(`blogs/${post.slug}`)} class="blog-card__link">
-                <h2>{post.data.title}</h2>
-                <p class="blog-card__meta">
+              <a href={`/blogs/${post.slug}/`} class="blog-card__link">
+                <h2 class="type-m-600">{post.data.title}</h2>
+                <p class="blog-card__meta type-s-500">
                   {formatPostDate(post.data.pubDate)} · About {readingLength}
                 </p>
-                <p class="blog-card__summary">{getPostSummary(post)}</p>
+                <p class="blog-card__summary type-s-500">
+                  {getPostSummary(post)}
+                </p>
                 {post.data.tags.length > 0 && (
                   <ul class="blog-card__tags" aria-label="Tags">
                     {post.data.tags.map((tag: string) => (
-                      <li>{tag}</li>
+                      <li class="type-s-500">{tag}</li>
                     ))}
                   </ul>
                 )}
@@ -71,10 +76,15 @@ const externalPosts = externalBlogs.map((blog) => ({
                 class="blog-card__link blog-card__link--external"
               >
                 <div class="blog-card__title-row">
-                  <h3>{blog.title}</h3>
-                  <RiArrowRightUpLine className="blog-card__external-icon" />
+                  <h3 class="type-m-600">{blog.title}</h3>
+                  <Icon
+                    name="arrow-up-right"
+                    class="blog-card__external-icon"
+                  />
                 </div>
-                <p class="blog-card__meta">Published on {blog.source}</p>
+                <p class="blog-card__meta type-s-500">
+                  Published on {blog.source}
+                </p>
               </a>
             </article>
           ))

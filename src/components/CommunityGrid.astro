@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+import codeday from "../assets/community/codeday.webp";
+import firstSession from "../assets/community/first_session.webp";
+
+const entries = [
+  {
+    image: firstSession,
+    alt: "Teaching Git to a lecture hall of students",
+    caption: "~ Teaching Git to 250+ students",
+  },
+  {
+    image: codeday,
+    alt: "Group photo of CodeDay Hyderabad 2024 attendees",
+    caption: "~ Organizing CodeDay Hyd 2024",
+  },
+];
+---
+
+<section class="community-section mt-16" id="community">
+  <div class="max-w-[38rem]">
+    <h2 class="section-heading type-h2 m-0 text-title">Community Work</h2>
+    <p class="section-copy type-s-500 m-0 mt-2 text-muted">
+      Photos and moments from workshop sessions and coding events.
+    </p>
+  </div>
+
+  <div class="mt-6 flex flex-col gap-4">
+    {
+      entries.map(({ image, alt, caption }) => (
+        <figure class="community-section__figure m-0">
+          <Image
+            src={image}
+            alt={alt}
+            widths={[480, 800, 1200]}
+            sizes="(max-width: 640px) 100vw, 768px"
+            loading="lazy"
+            decoding="async"
+            class="community-section__image"
+          />
+          <figcaption class="type-s-500 text-muted mt-4">{caption}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>

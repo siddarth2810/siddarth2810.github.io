@@ -1,5 +1,5 @@
 ---
-import { RiArrowRightUpLine } from "react-icons/ri";
+import Icon from "./Icon.astro";
 import { isExternalUrl } from "../../util/url";
 
 type Project = {
@@ -29,31 +29,27 @@ const isExternal = isExternalUrl(project.link);
   rel={isExternal ? "noopener noreferrer" : undefined}
   aria-label={`View ${project.title}`}
 >
-  <RiArrowRightUpLine
-    className="project-card__external-icon absolute right-4 top-4 h-4 w-4"
-    aria-hidden="true"
+  <Icon
+    name="arrow-up-right"
+    class="project-card__external-icon absolute right-0 top-6 h-4 w-4"
   />
 
-  <div class="project-card__body flex flex-col gap-2 p-4 pr-11 sm:p-5 sm:pr-12">
-    <h3
-      class="project-card__title m-0 font-heading text-xl leading-snug text-title"
-    >
+  <div class="project-card__body flex flex-col gap-2 pr-8">
+    <h3 class="project-card__title type-m-600 m-0 text-title">
       {project.title}
     </h3>
 
-    <p class="project-card__description m-0 text-base leading-7">
+    <p class="project-card__description type-s-500 m-0">
       {project.description}
     </p>
 
     {
       showDetails && project.details && (
-        <p class="project-card__details m-0 mt-2 text-base leading-7">
-          {project.details}
-        </p>
+        <p class="project-card__details type-s-500 m-0">{project.details}</p>
       )
     }
 
-    <p class="project-card__tech m-0 mt-3 text-sm leading-6">
+    <p class="project-card__tech type-s-500 m-0 mt-2">
       Tech: {project.tech.join(", ")}
     </p>
   </div>

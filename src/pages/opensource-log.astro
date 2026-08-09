@@ -6,19 +6,25 @@ const logEntry = await getEntry("opensource_log", "opensource-log");
 const { Content } = await logEntry.render();
 ---
 
-<Layout title={`${logEntry.data.title} • Siddarth Gundu`}>
+<Layout
+  title={`${logEntry.data.title} • Siddarth Gundu`}
+  description={logEntry.data.description ??
+    "A running log of my open source contributions."}
+>
   <div class="blog-post-shell">
     <article class="blog-post">
       <header class="blog-post__header">
-        <h1>{logEntry.data.title}</h1>
+        <h1 class="type-m-600">{logEntry.data.title}</h1>
         {
           logEntry.data.description && (
-            <p class="blog-post__description">{logEntry.data.description}</p>
+            <p class="blog-post__description type-m-500">
+              {logEntry.data.description}
+            </p>
           )
         }
       </header>
 
-      <div class="blog-prose">
+      <div class="blog-prose type-prose">
         <Content />
       </div>
     </article>

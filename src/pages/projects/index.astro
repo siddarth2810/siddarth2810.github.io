@@ -4,21 +4,22 @@ import ProjectCard from "../../components/ui/ProjectCard.astro";
 import projects from "../../constants/projects.json";
 ---
 
-<Layout title="Siddarth Gundu • projects">
+<Layout
+  title="Projects • Siddarth Gundu"
+  description="Projects and learning experiments across infrastructure, compilers, and developer tooling."
+>
   <section class="project-page w-full">
     <header class="project-page__header mb-6 max-w-[43rem]">
-      <h1
-        class="m-0 text-balance font-heading text-[2.25rem] leading-tight text-title sm:text-[2.65rem]"
-      >
+      <h1 class="type-h1 m-0 text-balance text-title">
         Projects & Experiments
       </h1>
-      <p class="m-0 mt-3 text-base leading-7 text-muted">
+      <p class="type-m-500 m-0 mt-2 text-muted">
         A List of projects and learning experiments
       </p>
     </header>
 
     <div
-      class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+      class="grid grid-cols-1 gap-x-8 sm:grid-cols-2"
       aria-label="Projects"
     >
       {projects.map((project) => <ProjectCard project={project} />)}

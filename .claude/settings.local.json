@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rtk ls *)",
+      "Bash(rtk read *)",
+      "Bash(rtk grep *)",
+      "Bash(python3 *)",
+      "Bash(npm run *)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__resize_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__emulate",
+      "Bash(npx prettier *)",
+      "Bash(pkill -f \"astro dev\")",
+      "Bash(rtk git *)",
+      "Bash(node -e \"console.log\\(require.resolve\\('react-icons/ri'\\)\\)\")",
+      "Bash(node *)",
+      "Bash(git mv *)",
+      "Bash(grep -vE \"^\\\\s*$\")",
+      "Bash(git rm *)",
+      "Bash(npx astro *)",
+      "Bash(grep -oE 'srcset=\"[^\"]{0,90}' dist/index.html)",
+      "Bash(npm uninstall *)",
+      "Bash(npm install *)",
+      "Bash(npm view *)"
+    ]
+  }
+}

@@ -12,13 +12,11 @@ export type LearningItem = {
   link: string;
 };
 
-const CACHE_KEY = "learning_items";
-
-declare global {
-  interface Window {
-    __GOOGLE_SHEET_ID?: string;
-  }
-}
+export type LearningGroup = {
+  category: string;
+  read: LearningItem[];
+  video: LearningItem[];
+};
 
 const normalizeSubtype = (value: string): LearningSubtype | null => {
   const v = value.trim().toLowerCase();
@@ -55,13 +53,14 @@ const get = (cells: Array<SheetCell | null> | undefined, i: number) =>
 const isLearningItem = (item: LearningItem | null): item is LearningItem =>
   item !== null;
 
-export const fetchReadingItems = async (
+/**
+ * Reads the public "reads" sheet. Runs at build time only — the result is
+ * baked into the generated HTML, so nothing about this ships to the browser.
+ */
+export const fetchLearningItems = async (
   sheetName = "reads",
 ): Promise<LearningItem[]> => {
-  const sheetId = normalizeSheetId(
-    import.meta.env.PUBLIC_GOOGLE_SHEET_ID ||
-      (typeof window !== "undefined" ? window.__GOOGLE_SHEET_ID : undefined),
-  );
+  const sheetId = normalizeSheetId(import.meta.env.PUBLIC_GOOGLE_SHEET_ID);
 
   if (!sheetId) throw new Error("PUBLIC_GOOGLE_SHEET_ID missing");
 
@@ -79,11 +78,9 @@ export const fetchReadingItems = async (
     );
   }
 
-  const body = await res.text();
-  const json = parseGviz(body);
-  const rows = json?.table?.rows ?? [];
+  const json = parseGviz(await res.text());
 
-  return rows
+  return (json?.table?.rows ?? [])
     .map((row) => {
       const cells = row.c;
       const category = get(cells, 0);
@@ -97,40 +94,38 @@ export const fetchReadingItems = async (
     .filter(isLearningItem);
 };
 
-export const fetchLearningItems = async (): Promise<LearningItem[]> => {
-  return fetchReadingItems("reads");
+export const groupLearningItems = (items: LearningItem[]): LearningGroup[] => {
+  const byCategory = new Map<string, LearningGroup>();
+
+  for (const item of items) {
+    let group = byCategory.get(item.category);
+
+    if (!group) {
+      group = { category: item.category, read: [], video: [] };
+      byCategory.set(item.category, group);
+    }
+
+    group[item.subtype].push(item);
+  }
+
+  return [...byCategory.values()].sort((a, b) =>
+    a.category.localeCompare(b.category),
+  );
 };
 
-export const fetchLearningItemsWithCache = async (): Promise<
-  LearningItem[]
-> => {
-  // localStorage is only available in the browser
-  if (typeof window === "undefined") {
-    return fetchLearningItems();
+/**
+ * Build-time entry point. A transient Google outage should not fail the whole
+ * site build, so a failure degrades to an empty list and a loud warning.
+ */
+export const getReadingGroups = async (): Promise<LearningGroup[]> => {
+  try {
+    return groupLearningItems(await fetchLearningItems());
+  } catch (error) {
+    console.warn(
+      `[reads] Could not load the reading list at build time — the page will render empty. ${
+        error instanceof Error ? error.message : error
+      }`,
+    );
+    return [];
   }
-
-  const cached = localStorage.getItem(CACHE_KEY);
-
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached) as LearningItem[];
-
-      // Background refresh
-      void fetchLearningItems()
-        .then((fresh) => {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(fresh));
-        })
-        .catch(() => {});
-
-      return parsed;
-    } catch {
-      // Corrupted cache, continue with a fresh fetch below
-      localStorage.removeItem(CACHE_KEY);
-    }
-  }
-
-  // First load
-  const data = await fetchLearningItems();
-  localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  return data;
 };

@@ -27,3 +27,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .codex
+
+# netlify (site deploys via GitHub Pages)
+.netlify/

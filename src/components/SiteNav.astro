@@ -1,9 +1,5 @@
 ---
-import {
-  MdOutlineKeyboardArrowDown,
-  MdOutlineKeyboardBackspace,
-} from "react-icons/md";
-import { withBase } from "../util/url";
+import Icon from "./ui/Icon.astro";
 import ThemeToggle from "./ui/ThemeToggle.astro";
 
 interface Props {
@@ -13,11 +9,13 @@ interface Props {
 const { isHomePage } = Astro.props;
 
 const navLinks = [
-  { href: withBase("opensource-log"), label: "oss" },
-  { href: withBase("projects"), label: "projects" },
-  { href: withBase("blogs"), label: "blog" },
-  { href: withBase("reads"), label: "reads" },
+  { href: "/opensource-log/", label: "oss" },
+  { href: "/projects/", label: "projects" },
+  { href: "/blogs/", label: "blog" },
+  { href: "/reads/", label: "reads" },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 
 <nav
@@ -30,11 +28,10 @@ const navLinks = [
         <ThemeToggle />
       ) : (
         <a
-          href={withBase("")}
-          target="_self"
+          href="/"
           class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
         >
-          <MdOutlineKeyboardBackspace className="-mt-0.5 inline-block" />
+          <Icon name="arrow-back" class="-mt-0.5 mr-1 inline-block" />
           <span>home</span>
         </a>
       )
@@ -46,7 +43,7 @@ const navLinks = [
       navLinks.map((link) => (
         <a
           href={link.href}
-          target="_self"
+          aria-current={currentPath.startsWith(link.href) ? "page" : undefined}
           class="hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
         >
           {link.label}
@@ -60,17 +57,14 @@ const navLinks = [
   <details class="site-nav__menu">
     <summary class="site-nav__menu-summary">
       <span>menu</span>
-      <MdOutlineKeyboardArrowDown
-        className="site-nav__menu-icon"
-        aria-hidden="true"
-      />
+      <Icon name="arrow-down" class="site-nav__menu-icon" />
     </summary>
     <div class="site-nav__menu-panel">
       {
         navLinks.map((link) => (
           <a
             href={link.href}
-            target="_self"
+            aria-current={currentPath.startsWith(link.href) ? "page" : undefined}
             class="site-nav__menu-link hover:text-primary underline-offset-4 transition duration-150 ease-in-out hover:underline"
           >
             {link.label}

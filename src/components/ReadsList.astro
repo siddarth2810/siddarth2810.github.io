@@ -1,0 +1,49 @@
+---
+import type { LearningGroup, LearningItem } from "../util/google-sheet";
+
+interface Props {
+  groups: LearningGroup[];
+}
+
+const { groups } = Astro.props;
+
+const sections = (group: LearningGroup): Array<[string, LearningItem[]]> =>
+  [
+    ["Reads", group.read] as [string, LearningItem[]],
+    ["Videos", group.video] as [string, LearningItem[]],
+  ].filter(([, items]) => items.length > 0);
+---
+
+{
+  groups.length === 0 ? (
+    <p class="type-s-500 text-muted">The reading list is unavailable.</p>
+  ) : (
+    <div class="reads-list">
+      {groups.map((group) => (
+        <section class="reads-list__section">
+          <h2 class="reads-list__category type-h2">{group.category}</h2>
+
+          {sections(group).map(([label, items]) => (
+            <div class="reads-list__group">
+              <p class="reads-list__label type-titles">{label}</p>
+              <ul class="reads-list__items">
+                {items.map((item) => (
+                  <li>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="reads-list__link type-s-500"
+                    >
+                      {item.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ))}
+    </div>
+  )
+}
