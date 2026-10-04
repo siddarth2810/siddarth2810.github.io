@@ -1,0 +1,113 @@
+src/content/blog/cold_calls_sales_and_startup.md
+  s_a7605825bf1c4b::t_73cd63793ee5c8 3
+src/components/ui/ProjectCard.astro
+  s_7a11176971a152::t_5c7540f65e8edb 16,19,53-59
+src/layouts/Layout.astro
+  s_a7605825bf1c4b::t_2c3b06bf704d53 5,52-62
+  s_a7605825bf1c4b::t_73cd63793ee5c8 9,14,16-18,23,25-26,28-30,46-50,67,71,73,80-94,100-101
+src/styles/global.css
+  s_ce6299702447a0::t_da6267aab24ab2 787
+  s_d0924fcc02a967::t_259a437abfbf02 880-903
+  s_f36a6c29bae5e9::t_5a8d47e062307c 54
+  s_f36a6c29bae5e9::t_2e8d429fcc6623 52-53,68,70,72-73,76-79,82,92,99-100,147,163,171,180-181,190,198-199,207-208,215-216,385-388,413,415,420,454-457,499-500,524,536,591,647,827,841,868,955
+  s_7a11176971a152::t_dfc5afecc36e35 961-998,1073-1091,1094-1097,1104,1109,1113,1134-1136,1223-1236
+  s_ce6299702447a0::t_f6c0598d5c6d04 742-786,788-795
+src/pages/index.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 19-22
+  s_7a11176971a152::t_5c7540f65e8edb 86
+  s_7a11176971a152::t_dfc5afecc36e35 57-58,65,71,82,85,87,90,93-95,99,113,116,132,135
+  s_7a11176971a152::t_83e4e799e33422 52-56,59-64,75-78,96-98,104,106-109,117-131
+src/pages/projects/index.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 9
+src/pages/blogs/index.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 29
+src/components/SiteNav.astro
+  s_a7605825bf1c4b::t_1b2a0731983f6c 12
+astro.config.mjs
+  s_a7605825bf1c4b::t_2c3b06bf704d53 6,9
+src/pages/opensource-log.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 11
+src/pages/404.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 8
+public/icons/cncf.svg
+  s_d0924fcc02a967::t_2f65318968eab6 1-19
+src/components/ui/ThemeToggle.astro
+  s_ce6299702447a0::t_f6c0598d5c6d04 22,81-122,130-132
+src/pages/reads/index.astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 10-11
+src/pages/blogs/[...slug].astro
+  s_a7605825bf1c4b::t_73cd63793ee5c8 35-36
+README.md
+  s_a7605825bf1c4b::t_2c3b06bf704d53 11-25
+src/integrations/markdown.mjs
+  s_a7605825bf1c4b::t_d80674cc0dd04e 6-41,45-46,65-66,68-74,117-118,124-127,130-133,144-145,152-155,163-172,175-177
+  s_a7605825bf1c4b::t_aec345c9d58c94 53-57,67,79-86,93-95
+  s_a7605825bf1c4b::t_e3940314b804a8 106
+  s_a7605825bf1c4b::t_124c78a36019fe 87-92
+  s_a7605825bf1c4b::t_2c3b06bf704d53 1-5,42-44,47-52,58-64,75-78,96-105,107-116,119-123,128-129,134-143,146-151,156-162,173-174,178-181
+src/pages/experience.astro
+  s_d0924fcc02a967::t_284bc6aa691bd2 5,16,23-26,28-41,104,127-131,137
+  s_a7605825bf1c4b::t_73cd63793ee5c8 27,110
+  s_a7605825bf1c4b::t_1b2a0731983f6c 109,112-113
+  s_d0924fcc02a967::t_370d19847fb634 43-44
+  s_d0924fcc02a967::t_9f19ccadd225dd 4,6-15,17-19,42,45-103,114-126,132-136,138-150
+  s_d0924fcc02a967::t_53ce08a690a6bc 1-3
+  s_d0924fcc02a967::t_9f0b1d2dfadfbb 20-22
+  s_a7605825bf1c4b::t_2b857a415c0033 111
+  s_d0924fcc02a967::t_6c9a706fc6bf1c 151-153
+  s_a7605825bf1c4b::t_fb372001072b64 105-108,154-156
+package.json
+  s_a7605825bf1c4b::t_8a7b6f9a4bfc0d 24-26
+src/content/blog/TSDB_to_Parquet.md
+  s_a7605825bf1c4b::t_73cd63793ee5c8 3
+package-lock.json
+  s_a7605825bf1c4b::t_d3d47ac9d68311 2,21-23,1494-1499,7328-7346
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e310b874e0f2fd7080867f46d1f2d31cd653c9e4",
+  "prompts": {},
+  "sessions": {
+    "s_7a11176971a152": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10808-11b3-7d92-9863-b1f4f49e52db",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Siddarth Gundu <siddarthg0910@gmail.com>"
+    },
+    "s_a7605825bf1c4b": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10814-8016-7621-b6a1-1842eeb8eb7e",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Siddarth Gundu <siddarthg0910@gmail.com>"
+    },
+    "s_ce6299702447a0": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10825-7575-7482-906d-094867892f0f",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Siddarth Gundu <siddarthg0910@gmail.com>"
+    },
+    "s_d0924fcc02a967": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a107c8-f51b-70a2-861d-93fb424011f9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Siddarth Gundu <siddarthg0910@gmail.com>"
+    },
+    "s_f36a6c29bae5e9": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a10766-6882-7471-ae07-5e22beb337b9",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "Siddarth Gundu <siddarthg0910@gmail.com>"
+    }
+  }
+}
