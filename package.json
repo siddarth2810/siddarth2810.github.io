@@ -21,6 +21,8 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
   }
 }

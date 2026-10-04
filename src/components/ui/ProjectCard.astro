@@ -13,9 +13,10 @@ type Project = {
 interface Props {
   project: Project;
   showDetails?: boolean;
+  showTech?: boolean;
 }
 
-const { project, showDetails = true } = Astro.props;
+const { project, showDetails = true, showTech = true } = Astro.props;
 const isExternal = isExternalUrl(project.link);
 ---
 
@@ -49,8 +50,12 @@ const isExternal = isExternalUrl(project.link);
       )
     }
 
-    <p class="project-card__tech type-s-500 m-0 mt-2">
-      Tech: {project.tech.join(", ")}
-    </p>
+    {
+      showTech && (
+        <p class="project-card__tech type-s-500 m-0 mt-2">
+          Tech: {project.tech.join(", ")}
+        </p>
+      )
+    }
   </div>
 </a>

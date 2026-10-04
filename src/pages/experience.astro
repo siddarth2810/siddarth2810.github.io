@@ -1,0 +1,156 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+type Role = {
+  title?: string;
+  dates: string;
+  employment?: string;
+  points: string[];
+  skills: string[];
+};
+
+type Experience = {
+  company: string;
+  icon: string;
+  iconAlt: string;
+  location?: string;
+  duration?: string;
+  roles: Role[];
+};
+
+
+const experiences: Experience[] = [
+  {
+    company: "Runable",
+    icon: "/icons/runable.png",
+    iconAlt: "Runable logo",
+    location: "On site",
+    roles: [
+      {
+        dates: "Jul 2026 – Present",
+        points: [
+          "Built the Templates experience end-to-end, including PostgreSQL/pgvector search, hybrid vector + BM25 retrieval, APIs, deployment, the public gallery, and integration with chat.",
+          "Drove a major localization migration across the product, helping make the application multilingual and improving how translations are loaded and maintained across the web and desktop apps.",
+          "Improved frontend performance and architecture by optimizing images and LCP, reducing bundle size, lazy-loading translations, and simplifying shared UI infrastructure.",
+          "Moved Flow, Runable's voice-to-text experience, into the Electron desktop app, integrating native keyboard input, audio capture, streaming transcription, authentication, text insertion, and UI feedback while removing the older standalone runtime.",
+        ],
+        skills: ["PostgreSQL", "pgvector", "BM25", "Electron", "Localization", "Web Performance"],
+      },
+    ],
+  },
+  {
+    company: "Cloud Native Computing Foundation (CNCF)",
+    icon: "/icons/cncf.svg",
+    iconAlt: "Cloud Native Computing Foundation (CNCF) logo",
+    location: "Remote",
+    duration: "1 yr 4 mos",
+    roles: [
+      {
+        title: "Triager",
+        dates: "Jul 2026 – Present · 4 mos",
+        points: [
+          "Part of Cortex team as triager, working on reviews, issue triage, and improvements.",
+          "Implemented configurable Parquet conversion safeguards for high-cardinality TSDB blocks using persistent no-convert markers.",
+          "Implemented row-range constraints caching across Querier and Store Gateway Parquet query paths; contributed to the native histogram and Parquet subsystem improvements.",
+        ],
+        skills: ["Go (Programming Language)"],
+      },
+      {
+        title: "Contributor",
+        dates: "Jul 2025 – Jun 2026 · 1 yr",
+        points: [
+          "Working on Cortex Metrics, long term storage solution for Prometheus and OpenTelemetry Metrics.",
+        ],
+        skills: ["Go (Programming Language)"],
+      },
+    ],
+  },
+  {
+    company: "Tower",
+    icon: "/icons/tower.svg",
+    iconAlt: "Tower logo",
+    location: "On-site",
+    roles: [
+      {
+        title: "Software Engineer",
+        employment: "Full-time",
+        dates: "Sep 2025 – Feb 2026 · 6 mos",
+        points: [
+          "Built Go and TypeScript backend services and React/Next.js dashboards for cloud metrics and logs by integrating Prometheus, VictoriaMetrics, and Loki HTTP APIs with WebSocket-based live log streaming.",
+          "Deployed Kubernetes observability infrastructure, including Loki Simple Scalable Architecture and kube-prometheus-stack, and migrated the metrics backend from Prometheus to VictoriaMetrics.",
+          "Redesigned authentication flow by validating Keycloak-issued tokens for frontend portal requests, reducing dependency on repeated PostgreSQL-backed session checks.",
+          "Deployed Percona PostgreSQL on Kubernetes with automated backup/restore using Velero and set up Percona Monitoring and Management (PMM) for provisioned database monitoring.",
+        ],
+        skills: ["Kubernetes", "React.js", "Go", "TypeScript", "Next.js", "PostgreSQL"],
+      },
+    ],
+  },
+  {
+    company: "The Linux Foundation",
+    icon: "/icons/linux_foundation.webp",
+    iconAlt: "The Linux Foundation logo",
+    location: "Remote",
+    roles: [
+      {
+        title: "Linux Kernel Mentee",
+        employment: "Internship",
+        dates: "Mar 2025 – May 2025 · 3 mos",
+        points: [
+          "Built and tested C patches with Git, QEMU, cscope, Smatch, and syzbot workflows; iterated with maintainers through upstream review cycles.",
+        ],
+        skills: ["C", "Git", "QEMU", "cscope", "Smatch", "syzbot"],
+      },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Work • Siddarth Gundu"
+  description="Siddarth Gundu's engineering work at Runable, CNCF, Tower, and The Linux Foundation, spanning product development, infrastructure, and open source."
+>
+  <section id="work">
+    <h1 class="type-h1 m-0 text-balance text-title">Work</h1>
+    <div class="experience-list mt-6">
+      {
+        experiences.map((experience) => (
+          <article class="experience-item">
+            <header class="flex items-start gap-4">
+              <img
+                class="experience-logo h-12 w-12 shrink-0 object-contain"
+                src={experience.icon}
+                alt={experience.iconAlt}
+                loading="lazy"
+              />
+              <div class="min-w-0">
+                <h2 class="type-h2 m-0 text-title">{experience.company}</h2>
+                {(experience.duration || experience.location) && (
+                  <p class="type-s-500 m-0 mt-2 text-muted">
+                    {[experience.duration, experience.location].filter(Boolean).join(" · ")}
+                  </p>
+                )}
+              </div>
+            </header>
+            <div class="experience-roles">
+              {experience.roles.map((role) => (
+                <section class="experience-role">
+                  {role.title && <h3 class="type-h3 m-0 text-title">{role.title}</h3>}
+                  <p class="type-s-500 m-0 mt-2 text-muted">
+                    {role.dates}
+                    {role.employment && ` · ${role.employment}`}
+                  </p>
+                  <ul class="experience-points type-m-500">
+                    {role.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                  <p class="experience-skills type-s-500 m-0 text-muted">
+                    <strong>Skills:</strong> {role.skills.join(", ")}
+                  </p>
+                </section>
+              ))}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</Layout>

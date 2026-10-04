@@ -8,45 +8,18 @@ import CommunityGrid from "../components/CommunityGrid.astro";
 import Icon from "../components/ui/Icon.astro";
 import { getHostname } from "../util/url";
 
-type Experience = {
-  company: string;
-  icon: string;
-  role: string;
-  summary: string;
-};
-
 const socials = socialData;
 const featuredProjects = projects.slice(0, 3);
 const writingPosts = writingPostsData.slice(0, 3).map((post) => ({
   ...post,
   source: getHostname(post.link),
 }));
-const experiences: Experience[] = [
-  {
-    company: "Cortex (CNCF Incubating)",
-    icon: "/icons/cortex.svg",
-    role: "Triage Team",
-    summary:
-      "Part of Cortex team as triager, collaborating with Cortex maintainers on reviews, issue triage, and improvements.",
-  },
-  {
-    company: "Tower Cloud",
-    icon: "/icons/tower.svg",
-    role: "Software Engineer",
-    summary:
-      "Built entire observability stack across the platform. Improved auth flows with Keycloak JWT verification, deployed Percona DBs on Kubernetes, and automated backup and restore workflows.",
-  },
-  {
-    company: "The Linux Foundation",
-    icon: "/icons/linux_foundation.webp",
-    role: "Linux Kernel Mentee",
-    summary:
-      "Contributed patches to the upstream Linux kernel while working with maintainers.",
-  },
-];
 ---
 
-<Layout title="Siddarth Gundu">
+<Layout
+  title="Siddarth Gundu • Software Engineer & Builder"
+  description="Siddarth Gundu is a software engineer, builder, and habitual tinkerer. Explore his projects, engineering work, open source contributions, and writing."
+>
   <div>
     <h1 class="type-display m-0 text-balance text-primary">Siddarth Gundu</h1>
     <div class="socials">
@@ -71,116 +44,95 @@ const experiences: Experience[] = [
     </div>
 
     <p class="about-copy type-m-500 m-0 mt-6">
-      Hi there, I'm an engineer and I work across infra, frontend and backend
-      systems. I work on
-      <a
-        href="https://github.com/cortexproject/cortex"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Cortex (CNCF Incubating),
-      </a>
-      the Linux kernel and other open source systems.
+            Hi there,I am a builder and habitual tinkerer.
+            I enjoy solving problems and understanding how software works under the hood, often by building things from scratch.
     </p>
   </div>
 
-  <section class="mt-16" id="experience">
-    <div class="experience-header">
-      <h2 class="section-heading type-h2 m-0 text-title">Experience</h2>
-    </div>
-    <div class="experience-list mt-6 flex flex-col gap-8">
-      {
-        experiences.map((exp) => (
-          <article class="experience-item flex items-start gap-4">
-            <img
-              class="experience-logo mt-0.5 hidden h-12 w-12 shrink-0 object-contain p-2 md:block"
-              src={exp.icon}
-              alt={`${exp.company} logo`}
-              loading="lazy"
-            />
-
-            <p class="experience-summary type-m-500 m-0 min-w-0 flex-1">
-              <strong>
-                {exp.company} - {exp.role}.
-              </strong>{" "}
-              {exp.summary}
-            </p>
-          </article>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="mt-16" id="projects">
-    <header
-      class="section-header mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
-    >
-      <div class="max-w-[38rem]">
-        <h2 class="section-heading type-h2 m-0 text-title">Projects</h2>
-        <p class="section-copy type-s-500 m-0 mt-2 text-muted">
+  <section
+    class="home-section"
+    id="projects"
+    aria-labelledby="projects-heading"
+  >
+    <header class="home-section__header">
+      <div class="home-section__intro">
+        <h2
+          id="projects-heading"
+          class="section-heading type-h2 m-0 text-title"
+        >
+          Projects
+        </h2>
+        <p class="section-copy type-s-500 m-0 text-muted">
           Projects I've shipped.
         </p>
       </div>
 
       <a
-        class="section-action type-s-500 inline-flex w-fit shrink-0 items-center gap-2"
+        class="home-section__action section-action type-s-500"
         href="/projects/"
       >
         <span>View all projects</span>
-        <Icon name="arrow-up-right" class="section-action__icon h-4 w-4 shrink-0" />
+        <Icon
+          name="arrow-up-right"
+          class="section-action__icon h-4 w-4 shrink-0"
+        />
       </a>
     </header>
 
-    <div class="flex flex-col" aria-label="Featured projects">
+    <ul class="home-section__list" aria-label="Featured projects">
       {
         featuredProjects.map((project) => (
-          <ProjectCard project={project} showDetails={false} />
+          <li>
+            <ProjectCard project={project} showDetails={false} showTech={false} />
+          </li>
         ))
       }
-    </div>
+    </ul>
   </section>
 
-  <section class="mt-16" id="writing">
-    <header
-      class="section-header mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
-    >
-      <div class="max-w-[38rem]">
-        <h2 class="section-heading type-h2 m-0 text-title">Writing</h2>
-        <p class="section-copy type-s-500 m-0 mt-2 text-muted">
+  <section class="home-section" id="writing" aria-labelledby="writing-heading">
+    <header class="home-section__header">
+      <div class="home-section__intro">
+        <h2 id="writing-heading" class="section-heading type-h2 m-0 text-title">
+          Writing
+        </h2>
+        <p class="section-copy type-s-500 m-0 text-muted">
           Articles on engineering and technology.
         </p>
       </div>
 
-      <a
-        class="section-action type-s-500 inline-flex w-fit shrink-0 items-center gap-2"
-        href="/blogs/"
-      >
+      <a class="home-section__action section-action type-s-500" href="/blogs/">
         <span>View all writings</span>
-        <Icon name="arrow-up-right" class="section-action__icon h-4 w-4 shrink-0" />
+        <Icon
+          name="arrow-up-right"
+          class="section-action__icon h-4 w-4 shrink-0"
+        />
       </a>
     </header>
 
-    <div class="flex flex-col" aria-label="Featured writing">
+    <ul class="home-section__list" aria-label="Featured writing">
       {
         writingPosts.map((post) => (
-          <a
-            class="writing-card flex items-baseline justify-between gap-4"
-            href={post.link}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h3 class="type-m-600 m-0">{post.title}</h3>
-            <span class="writing-card__source type-s-500 flex shrink-0 items-center gap-2">
-              {post.source}
-              <Icon
-                name="arrow-up-right"
-                class="writing-card__external-icon h-4 w-4 shrink-0"
-              />
-            </span>
-          </a>
+          <li>
+            <a
+              class="writing-card"
+              href={post.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <h3 class="type-m-600 m-0">{post.title}</h3>
+              <span class="writing-card__source type-s-500">
+                {post.source}
+                <Icon
+                  name="arrow-up-right"
+                  class="writing-card__external-icon h-4 w-4 shrink-0"
+                />
+              </span>
+            </a>
+          </li>
         ))
       }
-    </div>
+    </ul>
   </section>
 
   <CommunityGrid />

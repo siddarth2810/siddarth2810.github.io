@@ -1,5 +1,6 @@
 ---
 title: "TSDB to Parquet"
+description: "Siddarth Gundu explains Prometheus series, TSDB blocks, and how metrics labels map to Parquet columns, drawing on his work with Cortex Metrics."
 pubDate: 2026-05-28
 tags: ["Parquet", "Open source"]
 draft: false

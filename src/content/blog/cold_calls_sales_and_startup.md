@@ -1,5 +1,6 @@
 ---
 title: "Cold Calls, Sales and Startup Founders"
+description: "Siddarth Gundu reflects on cold calling, sales, and meeting startup founders through AIESEC, from market research to organizing The Startup Summit."
 pubDate: 2026-06-01
 tags: ["Non-tech"]
 draft: false
@@ -74,4 +75,3 @@ This might be a usual undergrad experience if you are part of college clubs, but
 It was fun meeting founders and cool people in the startup space.
 
 That said, I still have to improve a LOT in communicating clearly.
-

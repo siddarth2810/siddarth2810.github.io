@@ -8,6 +8,21 @@ Personal portfolio site built with Astro + Tailwind + React islands.
 - Dev: `bun run dev`
 - Build: `bun run build`
 
+## Markdown and llms.txt
+
+The production build generates `/llms.txt` and an `index.md` beside each main
+page: `/index.md`, `/experience/index.md` (Work), `/projects/index.md`,
+`/blogs/index.md`, `/opensource-log/index.md`, and `/reads/index.md`.
+Published local blog posts also get `/blogs/<slug>/index.md`; drafts are excluded
+by the existing content collection flow.
+
+`src/integrations/markdown.mjs` converts the rendered HTML, retaining article
+text, links, images, code blocks, and tables while removing navigation and page
+controls. Content changes are reflected automatically on the next build. Each
+HTML page advertises its Markdown alternate and `/llms.txt` in its head. These
+generated files are available with `npm run preview` and on the deployed static
+site, rather than in the development server.
+
 ## Acknowledgements
 
 This project is based on / heavily inspired by:

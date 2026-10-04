@@ -32,6 +32,8 @@ const minutes = getReadingTime(post);
   description={getPostSummary(post)}
   type="article"
   publishedAt={post.data.pubDate}
+  updatedAt={post.data.updatedDate}
+  tags={post.data.tags}
 >
   <div class="blog-post-shell">
     <article class="blog-post">
